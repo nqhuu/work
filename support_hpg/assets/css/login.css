@@ -1,0 +1,66 @@
+/* body {
+    background-color: rgb(218, 218, 218);
+    width: 100%;
+    height: 100%; */
+/* opacity: 0.2; */
+/* display: flex;
+    justify-content: center;
+    align-items: center;
+} */
+
+#login {
+    background-color: #fff;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: 100px; */
+    /* transition: top 0.5s ease; */
+    /* box-shadow: 5px 15px 15px rgba(0, 0, 0, 0.3); */
+    border-radius: 5px;
+    /* top: 100px; */
+}
+
+
+/* Vị trí khi bảng đăng nhập xuất hiện */
+/* .login.show {
+    top: 100px;
+} */
+
+#login .login-form {}
+
+input {
+    height: 30px;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.close {
+    position: absolute;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 0 5px 0 0;
+    font-size: 14px;
+    width: 50px;
+    height: 30px;
+    top: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.close:hover {
+    background-color: #ff5252;
+    color: #ffffff;
+}
+
+.alert {
+    color: red;
+}
