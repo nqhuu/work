@@ -23,9 +23,11 @@ function getCourseApi(callback) {
 function renderCourse(courses) {
     let listCoursesBlock = document.querySelector('#list-courses');
     let htmls = courses.map(course => {
-        return `<li>
+        return `<li class="course-item-${course.id}">
             <h4>${course.name}</h4>
             <p>${course.description}</p>
+            <button onclick = "handleDeleteCourse(\'${course.id}\')">xóa</button>
+            <button onclick = "putIdCourse(\'${course.id}\')">sửa</button>
         </li>`
     })
     listCoursesBlock.innerHTML = htmls.join("");
@@ -66,3 +68,70 @@ function handleCreateForm() {
         });
     };
 };
+
+
+
+// hàm xử lý việc xóa dữ liệu
+function handleDeleteCourse(id) {
+    let options = {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    };
+    fetch(courseApi + "/" + id, options)
+        // .then(reponse => reponse.json()) // trả về dữ liệu mà đã được fetch thực hiện với cấu hình HTTP obtions ở đối số thứ 2
+        // .then(data => console.log('data đã đưuọc xóa'))
+        .then(function () { //
+            let courseItem = document.querySelector('.course-item-' + id)
+            if (courseItem) {
+                courseItem.remove();
+            }
+        });
+};
+
+
+
+// hàm sửa
+function putIdCourse(id) {
+    fetch(courseApi + '/' + id)
+        .then(response => response.json())
+        .then(course => handlePutCourse(course))
+}
+
+// hàm xử lý việc sửa dữ liệu
+
+function handlePutCourse(course) {
+    let modifyBtn = document.querySelector('#modify');
+    let createBtn = document.querySelector('#create');
+    let name = document.querySelector('input[name="name"]');
+    let description = document.querySelector('input[name="description"]');
+    createBtn.style.display = "none";
+    modifyBtn.style.display = "inline-block";
+    name.value = course.name;
+    description.value = course.description;
+    modifyBtn.onclick = function () {
+        let dataUpdate = {
+            name: name.value,
+            description: description.value
+        }
+        let options = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+        }
+        fetch(courseApi + '/' + course.id, options)
+            .then(course => course.json())
+            .then(function () {
+                name.value = '';
+                description.value = '';
+                createBtn.style.display = "inline-block";
+                modifyBtn.style.display = "none";
+                getCourseApi(renderCourse);
+            })
+    }
+}
+
+

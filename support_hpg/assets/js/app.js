@@ -42,13 +42,13 @@ function handleDeleteCourse(id) {
             "Content-Type": "application/json",
         },
     };
-    fetch(courseApi + '/' + id, options) //gọi tới API có id cụ thể để xác định được thẻ cần xóa
+    fetch(courseApi + '/' + id, options) //gọi tới API có id cụ thể để xác định được thẻ cần xóa sau đó thực hiện yêu cầu gửi đến cho HTTP với cấu hình options ở đối số thứ 2 (ở đây là xóa)
         .then(function (response) {
-            response.json(); //đưa dữ liệ json sang js 
+            response.json(); //trả về dữ liệu json vừa bị xóa sang js nếu ta muốn thực hiện với dữ liệu này còn không thì bỏ qua
         })
-        .then(function () {
-            let courseItem = document.querySelector('.course-item-' + id); //
-            if (courseItem) {
+        .then(function () { // thực hiện xóa dữ liệu trên DOM
+            let courseItem = document.querySelector('.course-item-' + id); //gọi DOM
+            if (courseItem) { // nếu tồn tại trong DOM thì thực hiện xóa
                 courseItem.remove();
             }
         });

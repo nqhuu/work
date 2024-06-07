@@ -1,21 +1,49 @@
 {
-    "courses": [
-        {
-            "id": 1,
-            "img": "url",
-            "name": "Javascrip",
-            "description": "nọi dung"
-        },
-        {
-            "id": 2,
-            "img": "url",
-            "name": "NodeJs",
-            "description": "nội dung"
-        },
-        {
-            "id": "e993",
-            "name": "123",
-            "description": "1123"
-        }
-    ]
+  "courses": [
+    {
+      "id": "1",
+      "img": "url",
+      "name": "Javascrip",
+      "description": "nọi dung"
+    },
+    {
+      "name": "NodeJS",
+      "description": "nội dung NodeJS",
+      "id": "2"
+    },
+    {
+      "name": "express",
+      "description": "Nội dung express.",
+      "id": "00af"
+    }
+  ],
+  "account": [
+    {
+      "id": 1,
+      "user": "huunq",
+      "password": "123",
+      "passwordDefault": "abc",
+      "fullname": "Ngô Quốc Hữu",
+      "department": "IT",
+      "permission": "administrator"
+    },
+    {
+      "id": 2,
+      "user": "user",
+      "password": "123",
+      "passwordDefault": "abc",
+      "fullname": "Người dùng 1",
+      "department": "KyThuat",
+      "permission": "user"
+    },
+    {
+      "id": 3,
+      "user": "user2",
+      "password": "123",
+      "passwordDefault": "abc",
+      "fullname": "Người dùng 2",
+      "department": "KyThuat",
+      "permission": "admin"
+    }
+  ]
 }
