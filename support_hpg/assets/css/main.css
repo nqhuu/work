@@ -250,9 +250,7 @@
     text-align: center;
 }
 
-#container .content-processing {
-    height: 100%;
-}
+
 
 .content .content-error .colum:nth-child(1),
 .content .content-error .colum:nth-child(2),
@@ -267,6 +265,7 @@
 }
 
 
+
 .content .content-error .colum:nth-child(6) {
     width: 25%;
 }
@@ -274,12 +273,25 @@
 
 /* bảng hiển thị tình trạng xử lý lỗi */
 
+#container .content-processing {
+    border: 1px solid#333;
+    height: 800px;
+}
+
+#container .content-processing .colum-processing {
+    text-align: center;
+    border: 1px solid #333;
+}
+
 #container .content-processing .content__table {
     border: 1px solid#333;
     width: 100%;
-    height: 800px;
+    /* border-spacing: 0; */
+    border-collapse: collapse;
+    /* height: 800px; */
     /* margin-bottom: 50px; */
 }
+
 
 
 #container .content-processing .row {

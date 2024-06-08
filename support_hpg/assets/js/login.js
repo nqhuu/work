@@ -1,62 +1,65 @@
+let account = 'http://localhost:3000/account';
+let categoty = 'http://localhost:3000/category';
+let handleError = 'http://localhost:3000/handleError'
 
+let headerLogin = document.querySelector('#header .header__login')
+let login = document.querySelector('#login');
+let loginBlock = document.querySelector('#login .login-block');
+let close = document.querySelector('#login .close');
+let errorTable = document.querySelector('#container .content .content-error')
 
-let dataAccount = JSON.parse(localStorage.getItem('account')); // lấy dữ liệu mảng account từ file scrip.js sang theo định gạn JSON và trả về dạng mảng ban đầu
-// console.log(dataAccount);
+headerLogin.onclick = function (e) {
+    login.style.display = 'block';
+}
 
-fetch('login.html')
-    .then(reponse => reponse.text())
-    .then(data1 => {
-        let userElement = document.querySelector('input[id="username"]');
-        let passwordElement = document.querySelector('input[id="password"]');
-        // let website = document.querySelector('a[id="webHpg"]')
-        let alertError = document.querySelector('#login .login-form .alert')
-        // console.log(alertError);
-        let username = '';
-        userElement.oninput = function (event) {
-            username = event.target.value;
-        }
+loginBlock.onclick = function (e) {
+    e.stopPropagation();
+}
 
-        let password = '';
-        passwordElement.oninput = function (event) {
-            password = event.target.value
-        }
+login.onclick = function (e) {
+    login.style.display = 'none';
+}
 
-        let summit = document.querySelector('#login .login  ')
-        summit.onclick = function (event) {
-            event.preventDefault();
-            let kq = false;
-            let checkAccount;
-            if (username.length === 0 || username.length < 3) {
-                alertError.innerHTML = 'Nhập tài khoản có nhiều hơn 2 ký tự'
-                alert('Nhập tài khoản có nhiều hơn 2 ký tự')
-            } else if (username.length >= 3) {
-                if (password.length === 0 || password.length < 3) {
-                    alert('Mật khẩu không được để trống và phải có ít nhất 2 ký tự')
-                } else {
-                    checkAccount = account.find(item => item.user === username && item.password === password)
-                    if (checkAccount) {
-                        alert('Bạn đã đăng nhập thành công');
-                        kq = true;
-                        fetch('index.html')
-                            .then(reponse => reponse.text())
-                            .then(data2 => {
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    let overlay = document.querySelector('overlay')
-                                    overlay.addEventListener()
-                                    console.log(overlay);
-                                })
-                            })
-                    } else {
-                        alert('Sai tài khoản hoặc mật khẩu')
-                    }
-                }
+close.onclick = function () {
+    login.style.display = 'none';
+}
 
-                // if (kq) {
-                //     window.location.href = website.href;
-                // };
+let loginBtn = document.querySelector('#login .login');
+let alert = document.querySelector('#login .alert');
+let userNameLogin = document.querySelector('#header .user-name')
+console.log(userNameLogin);
+
+// chức năng đăng nhập
+function loginMain() {
+    fetch(account)
+        .then(reponse => reponse.json())
+        .then(handleLogin)
+}
+// handleLogin - xử lý đăng nhập
+function handleLogin(accounts) {
+    loginBtn.onclick = function (e) {
+        e.preventDefault();
+        let flag = false
+        accounts.forEach(account => {
+            let username = document.querySelector('#username');
+            let password = document.querySelector('#password');
+            let userInp = username.value;
+            let passwordInp = password.value;
+            if (account.user === userInp && account.password === passwordInp) {
+                headerLogin.innerHTML = account.user;
+                errorTable.style.display = 'block';
+                login.style.display = 'none'
+                headerLogin.style.display = 'none'
+                userNameLogin.style.display = 'block'
+                flag = true;
             }
-
+        });
+        if (!flag) {
+            alert.innerHTML = "bạn chưa nhập đúng tài khoản hoặc mật khẩu"
         }
-    })
 
+    }
+}
 
+loginMain()
+// end đăng nhập----------------------------------

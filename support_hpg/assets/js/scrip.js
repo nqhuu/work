@@ -71,12 +71,15 @@ start();
 
 
 // hiển thị bảng đăng nhập
-let headerLogin = document.querySelector('#header .header__login')
+let headerLogin = document.querySelector('#header .header__login');
 let login = document.querySelector('#login');
 let loginBlock = document.querySelector('#login .login-block');
 let close = document.querySelector('#login .close');
-let errorTable = document.querySelector('#container .content .content-error')
-
+let errorTable = document.querySelector('#container .content .content-error');
+let sidebar = Array.from(document.querySelectorAll('#container .sidebar'));
+let listCategory = sidebar.map(element => {
+    //////////////////////////////////////////////////////////////////////////////////////////////
+} )
 
 headerLogin.onclick = function (e) {
     login.style.display = 'block';
@@ -109,8 +112,10 @@ function getError(callback) {
 function renderhandleError(handleErrors) {
     let processingBody = document.querySelector('#container .content-processing .processing-body')
     let htmls = "";
+
     htmls = handleErrors.map(handleError => {
-        return `
+        handleError.status
+          return `
         <tr>
         <td>${handleError.stt}</td>
         <td>${handleError.department}</td>
@@ -126,13 +131,15 @@ function renderhandleError(handleErrors) {
         <td>${handleError.errorUser}</td>
         <td>${handleError.HandleUser}</td>
         <td>${handleError.status}</td>
-        <td>${handleError.department}</td>
-        <td><button>sửa</button> <button>xóa</button></td>
+        <td class="colum-processing"><button style="padding: 0 10px">sửa</button> <button style="padding: 0 10px">xóa</button> <button>Xác nhận</button></td>
         </tr>
         `
+        
     })
     processingBody.innerHTML = htmls.join('');
 }
+
+
 
 // Nhập tài khoản
 
@@ -140,7 +147,7 @@ function renderhandleError(handleErrors) {
 let loginBtn = document.querySelector('#login .login');
 let alert = document.querySelector('#login .alert');
 let userNameLogin = document.querySelector('#header .user-name')
-console.log(userNameLogin);
+// console.log(userNameLogin);
 
 // chức năng đăng nhập
 function loginMain() {
@@ -178,6 +185,7 @@ function handleLogin(accounts) {
 // end đăng nhập----------------------------------
 
 
+// chọn hạng mục báo lỗi 
 
 
 
