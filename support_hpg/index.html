@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Support HPGlass</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-    <link rel="stylesheet" href="./assets/css/base.css">
+    <!-- <link rel="stylesheet" href="./assets/css/base.css"> -->
     <link rel="stylesheet" href="./assets/css/main.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap&subset=vietnamese">
@@ -16,17 +16,37 @@
 <body>
     <div id="header">
         <img src="./assets/img/logo/logo.png" alt="" class="header__logo">
-        <a href="" class="header__login font-size white text-decoration">Đăng nhập</a>
+        <a href="#" class="header__login font-size white text-decoration">Đăng nhập</a>
+        <div class="user-name logout" style="display: none;">
+            <p class="user-name-login font-size white text-decoration">huunq</p>
+        </div>
     </div>
-    <div id="overlay">
+    <!-- <div id="overlay">
         <iframe src="./login.html" frameborder="0" class="overlay-iframe"></iframe>
+    </div> -->
+
+    <div id="login">
+        <div class="login-block">
+            <form class="login-form">
+                <input type="username" name="" id="username" style="margin: 10px 0;" placeholder="Tên đăng nhập">
+                <br>
+                <input type="password" name="" id="password" placeholder="Mật khẩu">
+                <br>
+                <button class="login">Đăng nhập</button>
+                <br><br>
+                <p class="alert"></p>
+            </form>
+            <div class="close ti-close"></div>
+        </div>
     </div>
+
     <div id="container">
-        <div id="sidebar_container">
+        <div class="sidebar_container">
             <div class="sidebar">
                 <h2 class="sidebar__heading">IT</h2>
                 <ul class="sidebar__menu">
-                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Phần cứng</span>
+                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Phần
+                            cứng</span>
                     </li>
                     <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Phần mềm</span>
                     </li>
@@ -35,20 +55,23 @@
             <div class="sidebar">
                 <h2 class="sidebar__heading">Cơ Điện</h2>
                 <ul class="sidebar__menu">
-                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Văn phòng</span>
+                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Văn
+                            phòng</span>
                     </li>
-                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Nhà máy</span></li>
+                    <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Nhà máy</span>
+                    </li>
                 </ul>
             </div>
         </div>
-        <div id="content">
+        <div class="content">
             <!--báo lỗi phần cứng IT -->
-            <div class="content-error content-it-error-pc" style="display: none;">
+            <div class="content-error">
                 <table class="content__table">
                     <thead>
                         <tr class="row">
-                            <td class="colum">STT</td>
-                            <td class="colum">Thiết bị</td>
+                            <td class="colum">B/P xử lý</td>
+                            <td class="colum">Hạng mục</td>
+                            <td class="colum">Thiết bị/Phần mềm</td>
                             <td class="colum">Vị trí</td>
                             <td class="colum">Lỗi</td>
                             <td class="colum">Ghi chú</td>
@@ -56,102 +79,47 @@
                         </tr>
                     </thead>
                     <tbody class="error-body ">
-
-                    </tbody>
-                </table>
-                <div class="btn-error">
-                    <button class="btn btn-add">Tạo mới</button>
-                    <button class="btn btn-confirm">Xác nhận</button>
-                </div>
-            </div>
-
-            <!--báo lỗi phần mềm IT -->
-            <div class="content-error content-it-error-pm" style="display: none;">
-                <table class="content__table">
-                    <thead>
                         <tr class="row">
-                            <td class="colum">STT</td>
-                            <td class="colum">Phần mềm</td>
-                            <td class="colum">Vị trí</td>
-                            <td class="colum">Lỗi</td>
-                            <td class="colum">Ghi chú</td>
-                            <td class="colum">Hình ảnh</td>
+                            <td class="colum"></td>
+                            <td class="colum"></td>
+                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="file" placeholder="nhập" id=""></td>
                         </tr>
-                    </thead>
-                    <tbody class="error-body">
-
                     </tbody>
                 </table>
                 <div class="btn-error">
-                    <button class="btn btn-add">Tạo mới</button>
                     <button class="btn btn-confirm">Xác nhận</button>
                 </div>
             </div>
+            <!-- end báo lỗi -->
 
-            <!--báo lỗi Cơ Điện văn phòng -->
-            <div class="content-error content-cd-error-vp" style="display: none;">
-                <table class="content__table">
-                    <thead>
-                        <tr class="row">
-                            <td class="colum">STT</td>
-                            <td class="colum">Thiết bị văn phòng</td>
-                            <td class="colum">Vị trí</td>
-                            <td class="colum">Lỗi</td>
-                            <td class="colum">Ghi chú</td>
-                            <td class="colum">Hình ảnh</td>
-                        </tr>
-                    </thead>
-                    <tbody class="error-body">
-
-                    </tbody>
-                </table>
-                <div class="btn-error">
-                    <button class="btn btn-add">Tạo mới</button>
-                    <button class="btn btn-confirm">Xác nhận</button>
-                </div>
-            </div>
-
-            <!--báo lỗi Cơ Điện nhà máy -->
-            <div class="content-error content-cd-error-vp" style="display: none;">
-                <table class="content__table">
-                    <thead>
-                        <tr class="row">
-                            <td class="colum">STT</td>
-                            <td class="colum">Thiết bị nhà máy</td>
-                            <td class="colum">Vị trí</td>
-                            <td class="colum">Lỗi</td>
-                            <td class="colum">Ghi chú</td>
-                            <td class="colum">Hình ảnh</td>
-                        </tr>
-                    </thead>
-                    <tbody class="error-body">
-
-                    </tbody>
-                </table>
-                <div class="btn-error">
-                    <button class="btn btn-add">Tạo mới</button>
-                    <button class="btn btn-confirm">Xác nhận</button>
-                </div>
-            </div>
 
             <!-- bảng hỉnh thị thông tin đã báo lỗi và trạng thái xử lý -->
             <div class="content-processing">
                 <table class="content__table">
-                    <tr class="row">
-                        <td class="colum">STT</td>
-                        <td class="colum">Thiết bị/Phần mềm</td>
-                        <td class="colum">Vị trí</td>
-                        <td class="colum">Lỗi</td>
-                        <td class="colum">Ghi chú</td>
-                        <td class="colum">Hình ảnh</td>
-                        <td class="colum">Người báo lỗi</td>
-                        <td class="colum">Thời gian báo (h)</td>
-                        <td class="colum">bắt đâu xử lý (h)</td>
-                        <td class="colum">Hoàn thành (h)</td>
-                        <td class="colum">Chủng loại</td>
-                        <td class="colum">B/P xử lý</td>
-                        <td class="colum">Trạng thái</td>
-                    </tr>
+                    <thead>
+                        <tr class="row">
+                            <td class="colum">STT</td>
+                            <td class="colum">B/P xử lý</td>
+                            <td class="colum">Hạng mục</td>
+                            <td class="colum">Thiết bị/Phần mềm</td>
+                            <td class="colum">Vị trí</td>
+                            <td class="colum">Lỗi</td>
+                            <td class="colum">Ghi chú</td>
+                            <td class="colum">Hình ảnh</td>
+                            <td class="colum">Thời gian báo (h)</td>
+                            <td class="colum">bắt đâu xử lý (h)</td>
+                            <td class="colum">Hoàn thành (h)</td>
+                            <!-- <td class="colum">Chủng loại</td> -->
+                            <td class="colum">Người báo lỗi</td>
+                            <td class="colum">Người xử lý</td>
+                            <td class="colum">Trạng thái</td>
+                            <td class="colum">Thao tác</td>
+                        </tr>
+                    </thead>
                     <tbody class="processing-body">
 
                     </tbody>
@@ -160,6 +128,7 @@
             </div>
         </div>
     </div>
+
     <script src="./assets/js/scrip.js"></script>
 </body>
 

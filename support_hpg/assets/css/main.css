@@ -1,3 +1,10 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
 #header {
     display: flex;
     align-items: center;
@@ -39,12 +46,26 @@
     background-color: rgb(253, 42, 42);
     height: 60px;
     display: flex;
+    justify-content: center;
     align-items: center;
     padding: 0 10px;
-    /* color: #000; */
     text-transform: uppercase;
-
+    z-index: 1;
 }
+
+#header .user-name-login {
+    background-color: rgb(253, 42, 42);
+    height: 60px;
+    font-size: 20px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    text-transform: lowercase;
+    z-index: 1;
+}
+
+
 
 #header .header__login:hover {
     /* color: ; */
@@ -53,190 +74,245 @@
 }
 
 
+/* LOGIN */
+#login {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+#login .login-block {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    transition: top 0.5s ease;
+    background-color: #a1caf1;
+    width: 300px;
+    height: 300px;
+    box-shadow: 5px 15px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+#login .login-block .login-form {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%)
+}
+
+#login .login-form {
+    text-align: center;
+}
+
+
+#login .close {
+    position: absolute;
+    background-color: #f82020;
+    cursor: pointer;
+    border-radius: 0 5px 0 0;
+    font-size: 14px;
+    width: 50px;
+    height: 30px;
+    top: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.close:hover {
+    background-color: #ff5252;
+    color: #ffffff;
+}
+
+.alert {
+    color: red;
+}
+
+#login .login {
+    padding: 10px;
+    margin-top: 15px;
+
+}
+
+#login input {
+    height: 40px;
+    font-size: 20px;
+}
+
+/* *********END LOGIN */
+
 #container {
     display: flex;
-    height: calc(100%-60px);
+    height: 100%;
     padding-top: 60px;
 }
 
-#sidebar_container {
+.sidebar_container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     width: 100px;
-    /* background-color: rgb(252, 195, 195); */
     padding-top: 10px;
-    border-right: 2px solid #333;
-    /* flex: 1; */
 }
 
-#sidebar_container .sidebar {
+.sidebar_container .sidebar {
     padding: 10px 0;
-    border-bottom: 1px solid #333;
+    /* border: 1px solid #333; */
 
 }
 
-#sidebar_container .sidebar .sidebar__heading {
+.sidebar_container .sidebar .sidebar__heading {
     padding: 0 0 10px 3px;
     font-size: 18px;
     color: rgb(0, 17, 255);
 }
 
-#sidebar_container .sidebar .sidebar__menu__list {
+.sidebar_container .sidebar .sidebar__menu__list {
     padding: 5px;
     font-size: 16px;
 }
 
-#sidebar_container .sidebar__menu__list .text-decoration {
+.sidebar_container .sidebar__menu__list .text-decoration {
     padding: 2px 5px;
     min-width: 100px;
 }
 
-#sidebar_container .sidebar__menu__list:hover .text-decoration {
+.sidebar_container .sidebar__menu__list:hover .text-decoration {
     color: #ff1919;
     cursor: pointer;
     background-color: #e6e6e6;
 
 }
 
-/* table báo lỗi */
-#container #content {
-    flex: 1;
-    /* margin: 10px; */
+
+/*********************table báo lỗi và xử lý lỗi**************************/
+
+.show {
+    top: 100px;
 }
 
-#content .content__table {
+/* báo lỗi */
+
+#container .content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#container .content .content-error {
+    display: none;
+    border: 1px solid #333;
+    position: relative;
     width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #333;
-    margin-right: 10px;
+    margin-bottom: 50px;
 }
 
-#content .content__table .row {
-    border: 1px solid #333;
+#container .content .btn-error {
+    position: absolute;
+    right: 2px;
+    padding-top: 10px;
 }
 
-#content .content__table .colum,
-#content .error-body td {
-    border: 1px solid #333;
+#container .content .btn-confirm {
+    padding: 5px;
+    text-transform: uppercase;
+}
+
+#container .content-error .row {
+    background-color: #F0F0F0;
+}
+
+#container .content-error .colum,
+#container .content-processing .colum {
+    /* border-right: 1px solid #333;
+    border-bottom: 1px solid #333; */
     text-align: center;
     height: 30px;
-    background-color: #f0f0f0;
-
-}
-
-#content .content__table .colum {
-    font-weight: 500;
-    background-color: #2a9efc;
-}
-
-
-#content .content__table .colum:nth-child(1) {
-    width: 3%;
-}
-
-#content .content__table .colum:nth-child(2),
-#content .content__table .colum:nth-child(3),
-#content .content__table .colum:nth-child(4) {
-    width: 8%;
-    /* Áp dụng CSS giống nhau cho các thẻ từ nth-child(2) đến nth-child(4) */
-}
-
-#content .content__table .colum:nth-child(5) {
-    width: 20%;
-}
-
-#content .content__table .colum:nth-child(6),
-#content .content__table .colum:nth-child(7),
-#content .content__table .colum:nth-child(8),
-#content .content__table .colum:nth-child(9),
-#content .content__table .colum:nth-child(10),
-#content .content__table .colum:nth-child(11),
-#content .content__table .colum:nth-child(12) {
-    width: 7%;
-
-}
-
-
-#container .btn {
-    margin-top: 20px;
-    min-width: 100px;
-    min-height: 30px;
-    margin-right: 10px;
-    font-size: 16px;
-}
-
-#content .btn-error {
-    position: absolute;
-    margin-left: 10px;
-    right: 0px;
-    bottom: 10px;
-}
-
-#container .btn .btn-add {
-    /* background-color: yellow; */
-}
-
-
-#content {
-    display: flex;
-    flex-direction: column;
-    margin: 10px;
-    font-size: 16px;
-}
-
-
-#content .content-error {
-    flex: 1;
+    font-weight: 400;
     border: 1px solid#333;
-    position: relative;
-}
-
-#content .content-processing {
-    flex: 2;
-    margin-top: 10px;
-    border: 1px solid#333;
+    border-collapse: collapse;
 
 }
 
-
-.input-full-width {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+#container .content-error .error-body-inp {
     border: none;
-    text-align: center;
-    background-color: #f0f0f0;
-    /* Đảm bảo padding và border không ảnh hưởng đến tổng chiều rộng */
-}
-
-
-#overlay {
     width: 100%;
     height: 100%;
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    justify-content: center;
-    align-items: center;
+    text-align: center;
 }
 
-#overlay .overlay-iframe {
-    width: 300px;
-    height: 300px;
+#container .content-processing {
+    height: 100%;
+}
+
+.content .content-error .colum:nth-child(1),
+.content .content-error .colum:nth-child(2),
+.content .content-error .colum:nth-child(3) {
+    width: 8%;
+}
+
+.content .content-error .colum:nth-child(3),
+.content .content-error .colum:nth-child(4),
+.content .content-error .colum:nth-child(5) {
+    width: 15%;
 }
 
 
-.style-Login {
-    flex-direction: column;
-    z-index: 2;
-    box-shadow: 5px 15px 15px rgba(0, 0, 0, 0.3);
+.content .content-error .colum:nth-child(6) {
+    width: 25%;
 }
 
-.show-login {
-    display: flex;
 
+/* bảng hiển thị tình trạng xử lý lỗi */
+
+#container .content-processing .content__table {
+    border: 1px solid#333;
+    width: 100%;
+    height: 800px;
+    /* margin-bottom: 50px; */
 }
+
+
+#container .content-processing .row {
+    background-color: #4aadfd;
+}
+
+.content .content-processing .colum:nth-child(1) {
+    width: 2%;
+}
+
+.content .content-processing .colum:nth-child(2),
+.content .content-processing .colum:nth-child(3) {
+    width: 5%;
+}
+
+.content .content-processing .colum:nth-child(4),
+.content .content-processing .colum:nth-child(5),
+.content .content-processing .colum:nth-child(6) {
+    width: 8%;
+}
+
+
+.content .content-processing .colum:nth-child(7) {
+    width: 10%;
+}
+
+.content .content-processing .colum:nth-child(8),
+.content .content-processing .colum:nth-child(9),
+.content .content-processing .colum:nth-child(10),
+.content .content-processing .colum:nth-child(11),
+.content .content-processing .colum:nth-child(12),
+.content .content-processing .colum:nth-child(13),
+.content .content-processing .colum:nth-child(14),
+.content .content-processing .colum:nth-child(15),
+.content .content-processing .colum:nth-child(16),
+.content .content-processing .colum:nth-child(17) {}
