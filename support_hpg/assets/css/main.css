@@ -292,6 +292,15 @@
     /* margin-bottom: 50px; */
 }
 
+#container .content-error .content__table {
+    border: 1px solid#333;
+    width: 100%;
+    /* border-spacing: 0; */
+    border-collapse: collapse;
+    /* height: 800px; */
+    /* margin-bottom: 50px; */
+}
+
 
 
 #container .content-processing .row {

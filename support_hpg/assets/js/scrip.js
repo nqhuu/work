@@ -55,12 +55,21 @@ let account = 'http://localhost:3000/account';
 let categoty = 'http://localhost:3000/category';
 let handleError = 'http://localhost:3000/handleError'
 
-
-
+let loginBtn = document.querySelector('#login .login');
+let alert = document.querySelector('#login .alert');
+let userNameLogin = document.querySelector('#header .user-name')
+let showUserName = document.querySelector('#header .user-name-login')
+let headerLogin = document.querySelector('#header .header__login');
+let login = document.querySelector('#login');
+let loginBlock = document.querySelector('#login .login-block');
+let close = document.querySelector('#login .close');
+let errorTable = document.querySelector('#container .content .content-error');
+let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
+let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'))
 
 // Hàm khởi động phần mềm
 function start() {
-    loginMain()
+    loginMain(errorInput)
     getError(renderhandleError)
 }
 
@@ -71,15 +80,30 @@ start();
 
 
 // hiển thị bảng đăng nhập
-let headerLogin = document.querySelector('#header .header__login');
-let login = document.querySelector('#login');
-let loginBlock = document.querySelector('#login .login-block');
-let close = document.querySelector('#login .close');
-let errorTable = document.querySelector('#container .content .content-error');
-let sidebar = Array.from(document.querySelectorAll('#container .sidebar'));
-let listCategory = sidebar.map(element => {
-    //////////////////////////////////////////////////////////////////////////////////////////////
-} )
+
+
+
+// nhập liêu ********** thêm điều kiện sau khi đăng nhập thì click mới nhận// đã cho sau hàm login những vẫn nhận click vào chọn hạng mục, đăng nhập vào đã thấy có ngay
+// chọn hạng mục báo lỗi 
+function errorInput() {
+    sidebars.forEach(sidebar => {
+        let department = sidebar.querySelector('.sidebar__heading');
+        let categorys = Array.from(sidebar.querySelectorAll('.sidebar__menu__list'));
+        categorys.forEach(category => {
+            category.onclick = function () {
+                let categoryItem = category.innerHTML;
+                let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
+                let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
+                columDepartment.innerHTML = department.innerHTML;
+                columCategory.innerHTML = categoryItem;
+            }
+        })
+    })
+}
+// let category = Array.from(document.querySelectorAll('#container .sidebar__menu__list'))
+// console.log(category);
+
+
 
 headerLogin.onclick = function (e) {
     login.style.display = 'block';
@@ -115,7 +139,7 @@ function renderhandleError(handleErrors) {
 
     htmls = handleErrors.map(handleError => {
         handleError.status
-          return `
+        return `
         <tr>
         <td>${handleError.stt}</td>
         <td>${handleError.department}</td>
@@ -134,7 +158,7 @@ function renderhandleError(handleErrors) {
         <td class="colum-processing"><button style="padding: 0 10px">sửa</button> <button style="padding: 0 10px">xóa</button> <button>Xác nhận</button></td>
         </tr>
         `
-        
+
     })
     processingBody.innerHTML = htmls.join('');
 }
@@ -144,16 +168,13 @@ function renderhandleError(handleErrors) {
 // Nhập tài khoản
 
 
-let loginBtn = document.querySelector('#login .login');
-let alert = document.querySelector('#login .alert');
-let userNameLogin = document.querySelector('#header .user-name')
-// console.log(userNameLogin);
 
 // chức năng đăng nhập
-function loginMain() {
+function loginMain(callback) {
     fetch(account)
         .then(reponse => reponse.json())
         .then(handleLogin)
+        .then(callback)
 }
 // handleLogin - xử lý đăng nhập
 function handleLogin(accounts) {
@@ -166,11 +187,11 @@ function handleLogin(accounts) {
             let userInp = username.value;
             let passwordInp = password.value;
             if (account.user === userInp && account.password === passwordInp) {
-                headerLogin.innerHTML = account.user;
                 errorTable.style.display = 'block';
                 login.style.display = 'none'
                 headerLogin.style.display = 'none'
                 userNameLogin.style.display = 'block'
+                showUserName.innerHTML = account.user;
                 flag = true;
             }
         });
@@ -185,7 +206,7 @@ function handleLogin(accounts) {
 // end đăng nhập----------------------------------
 
 
-// chọn hạng mục báo lỗi 
+
 
 
 
