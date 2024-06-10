@@ -1,54 +1,4 @@
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     // Hàm thêm một hàng mới để nhập liệu
-//     document.getElementById('btnAdd').addEventListener('click', function () {
-//         const errorTable = document.getElementById('errorTable');
-//         const rowCount = errorTable.rows.length;
-//         const row = errorTable.insertRow(rowCount);
-
-//         for (let i = 0; i < 5; i++) {
-//             const cell = row.insertCell(i);
-//             if (i === 0) {
-//                 cell.innerText = rowCount; // Cột STT
-//             } else {
-//                 const input = document.createElement('input');
-//                 input.type = 'text';
-//                 cell.appendChild(input);
-//             }
-//         }
-//     });
-
-//     // Hàm xác nhận và chuyển dữ liệu xuống bảng dưới
-//     document.getElementById('btnConfirm').addEventListener('click', function () {
-//         const errorTable = document.getElementById('errorTable');
-//         const processingTable = document.getElementById('processingTable');
-
-//         for (let i = 1; i < errorTable.rows.length; i++) {
-//             const row = processingTable.insertRow(processingTable.rows.length);
-
-//             for (let j = 0; j < 9; j++) {
-//                 const cell = row.insertCell(j);
-//                 if (j < 5) {
-//                     cell.innerText = errorTable.rows[i].cells[j].children[0]?.value || errorTable.rows[i].cells[j].innerText;
-//                 } else {
-//                     cell.innerText = ''; // Các cột khác có thể được điền sau
-//                 }
-//             }
-//         }
-
-//         // Xóa bảng errorTable trừ hàng tiêu đề
-//         for (let i = errorTable.rows.length - 1; i > 0; i--) {
-//             errorTable.deleteRow(i);
-//         }
-//     });
-// });
-
-
-// localStorage.setItem('account', JSON.stringify(account)); // chuyển sang dạng JSON với key là account và value được chuyển sang dạng JSON bằng từ khóa setItem và lưu lại trong localStorage
-
-// let deviceOptions = ['Máy tính', 'Máy quét mã vạch', 'Máy in/intem/photo', 'Tivi', 'Màn hình máy tính', 'bán phí/chuột', 'camera', 'internet'];
-// let locationOptions = ['Văn phòng nhà ăn', 'Nhà ăn', 'VP kế toán', 'Lò mountain', 'Lò Fulltime', 'Lò Yuegao', 'Kho VT', 'Kho NL', 'Hộp', 'VP Hôp', 'EI', 'Mài cây tự động', 'Mài cây số 9', 'Mài cây số 10', 'Song cạnh 1-2', 'Song cạnh 3-4', 'Cắt Disai', 'Căt Intermac', 'Truyền dán 1', 'Truyền dán 2', 'Truyền dán 3'];
-// let errorDevice = ['Không lên hình', 'Không quét được', 'In lỗi'];
 
 // db
 let account = 'http://localhost:3000/account';
@@ -69,7 +19,7 @@ let departments = Array.from(document.querySelectorAll('#container .sidebar__hea
 
 // Hàm khởi động phần mềm
 function start() {
-    loginMain(errorInput)
+    loginMain(handleLogin)
     getError(renderhandleError)
 }
 
@@ -95,6 +45,7 @@ function errorInput() {
                 let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
                 let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
                 columDepartment.innerHTML = department.innerHTML;
+                console.log(columDepartment);
                 columCategory.innerHTML = categoryItem;
             }
         })
@@ -155,7 +106,7 @@ function renderhandleError(handleErrors) {
         <td>${handleError.errorUser}</td>
         <td>${handleError.HandleUser}</td>
         <td>${handleError.status}</td>
-        <td class="colum-processing"><button style="padding: 0 10px">sửa</button> <button style="padding: 0 10px">xóa</button> <button>Xác nhận</button></td>
+        <td class="colum-processing"><button style="min-width:50px;">sửa</button> <button style="min-width:50px;">xóa</button> <button style="min-width:50px;">Xử lý</button> <button>Hoàn Thành</button></td>
         </tr>
         `
 
@@ -170,11 +121,11 @@ function renderhandleError(handleErrors) {
 
 
 // chức năng đăng nhập
-function loginMain(callback) {
+function loginMain(callback, callback2) {
     fetch(account)
         .then(reponse => reponse.json())
-        .then(handleLogin)
         .then(callback)
+    // .then(callback2)
 }
 // handleLogin - xử lý đăng nhập
 function handleLogin(accounts) {
@@ -193,6 +144,7 @@ function handleLogin(accounts) {
                 userNameLogin.style.display = 'block'
                 showUserName.innerHTML = account.user;
                 flag = true;
+                errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
             }
         });
         if (!flag) {
