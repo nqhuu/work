@@ -162,6 +162,7 @@
     height: 100%;
     width: 100px;
     padding-top: 10px;
+    min-width: 100px;
 }
 
 .sidebar_container .sidebar {
@@ -183,7 +184,6 @@
 
 .sidebar_container .sidebar__menu__list .text-decoration {
     padding: 2px 5px;
-    min-width: 100px;
 }
 
 .sidebar_container .sidebar__menu__list:hover .text-decoration {

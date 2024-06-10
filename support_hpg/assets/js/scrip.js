@@ -16,21 +16,18 @@ let close = document.querySelector('#login .close');
 let errorTable = document.querySelector('#container .content .content-error');
 let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
 let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'))
-
+let btnConfirm = document.querySelector('#container .btn-error .btn-confirm')
 // Hàm khởi động phần mềm
 function start() {
-    loginMain(handleLogin)
-    getError(renderhandleError)
+    loginMain(handleLogin);
+    getError(renderhandleError);
+    handleCreateError();
 }
 
 start();
 
 
 // đăng nhập ***************************************************************
-
-
-// hiển thị bảng đăng nhập
-
 
 
 // nhập liêu ********** thêm điều kiện sau khi đăng nhập thì click mới nhận// đã cho sau hàm login những vẫn nhận click vào chọn hạng mục, đăng nhập vào đã thấy có ngay
@@ -51,8 +48,64 @@ function errorInput() {
         })
     })
 }
-// let category = Array.from(document.querySelectorAll('#container .sidebar__menu__list'))
-// console.log(category);
+
+// POST data ***************************
+// Hàm POST
+function CreateError(data, callback) {
+    let options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+    };
+    fetch(handleError, options)
+        .then(reponse => reponse.json())
+        .then(callback)
+};
+
+
+// Hàm xử lý POST
+
+function handleCreateError() {
+    btnConfirm.onclick = function (event) {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của nút
+        let date = new Date();
+        // let hours = date.getHours();
+        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+        console.log(errorTimeClick);
+        let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
+        console.log(errorInputColums);
+        let errorInput = Array.from(document.querySelectorAll('#container .error-body input'))
+        console.log(errorInputColums);
+        let ErrorDb = {
+            department: errorInputColums[0].innerHTML,
+            category: errorInputColums[1].innerHTML,
+            deviceOptions: errorInput[0].value,
+            location: errorInput[1].value,
+            errorDevice: errorInput[2].value,
+            errorNote: errorInput[3].value,
+            img: errorInput[4].value,
+            errorTime: errorTimeClick,
+            errorHandleTime: '',
+            completeTime: '',
+            errorUser: showUserName.innerHTML,
+            HandleUser: '',
+            status: 1
+        };
+        CreateError(ErrorDb, () => {
+            getError(renderhandleError)
+        })
+    };
+    // errorInputColums.map(errorInputColum => {
+    //     let inputItem = errorInputColum.querySelector('.error-body-inp').innerHTML
+    //     let data = {
+
+    //     }
+    // })
+
+}
+
 
 
 
@@ -87,27 +140,27 @@ function getError(callback) {
 function renderhandleError(handleErrors) {
     let processingBody = document.querySelector('#container .content-processing .processing-body')
     let htmls = "";
-
-    htmls = handleErrors.map(handleError => {
-        handleError.status
+    htmls = handleErrors.map((handleError, index) => {
+        let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+        let resultStatus = statusAll.find((istatusItem, index) => handleError.status == index + 1)
         return `
         <tr>
-        <td>${handleError.stt}</td>
-        <td>${handleError.department}</td>
-        <td>${handleError.category}</td>
-        <td>${handleError.deviceOptions}</td>
-        <td>${handleError.location}</td>
-        <td>${handleError.errorDevice}</td>
-        <td>${handleError.errorNote}</td>
-        <td>${handleError.img}</td>
-        <td>${handleError.errorTime}</td>
-        <td>${handleError.errorHandleTime}</td>
-        <td>${handleError.completeTime}</td>
-        <td>${handleError.errorUser}</td>
-        <td>${handleError.HandleUser}</td>
-        <td>${handleError.status}</td>
-        <td class="colum-processing"><button style="min-width:50px;">sửa</button> <button style="min-width:50px;">xóa</button> <button style="min-width:50px;">Xử lý</button> <button>Hoàn Thành</button></td>
-        </tr>
+        <td class="colum-processing" >${index + 1}</td>
+        <td class="colum-processing" >${handleError.department}</td>
+        <td class="colum-processing" >${handleError.category}</td>
+        <td class="colum-processing" >${handleError.deviceOptions}</td>
+        <td class="colum-processing" >${handleError.location}</td>
+        <td class="colum-processing" >${handleError.errorDevice}</td>
+        <td class="colum-processing" >${handleError.errorNote}</td>
+        <td class="colum-processing" >${handleError.img}</td>
+        <td class="colum-processing" >${handleError.errorTime}</td>
+        <td class="colum-processing" >${handleError.errorHandleTime}</td>
+        <td class="colum-processing" >${handleError.completeTime}</td>
+        <td class="colum-processing" >${handleError.errorUser}</td>
+        <td class="colum-processing" >${handleError.HandleUser}</td>
+        <td class="colum-processing" >${resultStatus}</td >
+    <td class="colum-processing"><button style="min-width:50px;">sửa</button> <button style="min-width:50px;">xóa</button> <button style="min-width:50px;">Xử lý</button> <button>Hoàn Thành</button></td>
+        </tr >
         `
 
     })
@@ -125,7 +178,7 @@ function loginMain(callback, callback2) {
     fetch(account)
         .then(reponse => reponse.json())
         .then(callback)
-    // .then(callback2)
+        .then(callback2)
 }
 // handleLogin - xử lý đăng nhập
 function handleLogin(accounts) {
