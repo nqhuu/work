@@ -6,7 +6,7 @@ let categoty = 'http://localhost:3000/category';
 let handleError = 'http://localhost:3000/handleError'
 
 let loginBtn = document.querySelector('#login .login');
-let alert = document.querySelector('#login .alert');
+let alertError = document.querySelector('#login .alert');
 let userNameLogin = document.querySelector('#header .user-name')
 let showUserName = document.querySelector('#header .user-name-login')
 let headerLogin = document.querySelector('#header .header__login');
@@ -42,7 +42,6 @@ function errorInput() {
                 let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
                 let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
                 columDepartment.innerHTML = department.innerHTML;
-                console.log(columDepartment);
                 columCategory.innerHTML = categoryItem;
             }
         })
@@ -51,7 +50,7 @@ function errorInput() {
 
 // POST data ***************************
 // Hàm POST
-function CreateError(data, callback) {
+function CreateError(data, callback, callback2) {
     let options = {
         method: "POST",
         headers: {
@@ -62,51 +61,78 @@ function CreateError(data, callback) {
     fetch(handleError, options)
         .then(reponse => reponse.json())
         .then(callback)
+        .then(callback2)
 };
 
 
 // Hàm xử lý POST
 
 function handleCreateError() {
-    btnConfirm.onclick = function (event) {
-        event.preventDefault(); // Ngăn chặn hành động mặc định của nút
-        let date = new Date();
-        // let hours = date.getHours();
-        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
-        console.log(errorTimeClick);
-        let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
-        console.log(errorInputColums);
-        let errorInput = Array.from(document.querySelectorAll('#container .error-body input'))
-        console.log(errorInputColums);
-        let ErrorDb = {
-            department: errorInputColums[0].innerHTML,
-            category: errorInputColums[1].innerHTML,
-            deviceOptions: errorInput[0].value,
-            location: errorInput[1].value,
-            errorDevice: errorInput[2].value,
-            errorNote: errorInput[3].value,
-            img: errorInput[4].value,
-            errorTime: errorTimeClick,
-            errorHandleTime: '',
-            completeTime: '',
-            errorUser: showUserName.innerHTML,
-            HandleUser: '',
-            status: 1
+    let checkClickBtnConfirm = false;
+    if (!checkClickBtnConfirm) {
+        btnConfirm.onclick = function (event) {
+            event.preventDefault(); // Ngăn chặn hành động mặc định của nút
+            let date = new Date();
+            // let hours = date.getHours();
+            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+            let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
+            // console.log(errorInputColums);
+            let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
+            // console.log(errorInputs);
+            let result = false
+            errorInputColums.forEach((errorInputColumItem, index) => {
+                if (index < 2 && errorInputColumItem.innerHTML !== '') {
+                    // console.log(errorInputColumItem.innerHTML);
+                    errorInputs.forEach((errorInputItem, index) => {
+                        if (index > 1 && errorInputItem.value !== '') {
+                            // console.log(errorInputItem.value);
+                            let ErrorDb = {
+                                department: errorInputColums[0].innerHTML,
+                                category: errorInputColums[1].innerHTML,
+                                deviceOptions: errorInputs[0].value,
+                                location: errorInputs[1].value,
+                                errorDevice: errorInputs[2].value,
+                                errorNote: errorInputs[3].value,
+                                img: errorInputs[4].value,
+                                errorTime: errorTimeClick,
+                                errorHandleTime: '',
+                                completeTime: '',
+                                errorUser: showUserName.innerHTML,
+                                HandleUser: '',
+                                status: 1
+                            };
+                            CreateError(ErrorDb, () => {
+                                getError(renderhandleError)
+                            }, () => {
+                                removeCreateError()
+                            });
+                            result = true;
+                        };
+                    });
+                };
+            });
+            if (!result) {
+                alert('Bạn cần nhập đủ thông tin yêu cầu');
+                // console.log('Bạn cần nhập đủ thông tin yêu cầu');
+            };
+            checkClickBtnConfirm = true;
         };
-        CreateError(ErrorDb, () => {
-            getError(renderhandleError)
-        })
     };
-    // errorInputColums.map(errorInputColum => {
-    //     let inputItem = errorInputColum.querySelector('.error-body-inp').innerHTML
-    //     let data = {
+};
 
-    //     }
-    // })
-
+// Đưa input về rỗng sau khi click button
+function removeCreateError() {
+    let removeErrorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
+    let removeErrorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
+    removeErrorInputColums.forEach((removeErrorInputColum, index) => {
+        if (index < 2) {
+            removeErrorInputColum.innerHTML = '';
+        }
+    })
+    removeErrorInputs.forEach(removeErrorInput => {
+        removeErrorInput.value = '';
+    })
 }
-
-
 
 
 headerLogin.onclick = function (e) {
@@ -201,7 +227,7 @@ function handleLogin(accounts) {
             }
         });
         if (!flag) {
-            alert.innerHTML = "bạn chưa nhập đúng tài khoản hoặc mật khẩu"
+            alertError.innerHTML = "bạn chưa nhập đúng tài khoản hoặc mật khẩu"
         }
 
     }
