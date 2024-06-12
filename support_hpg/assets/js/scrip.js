@@ -92,21 +92,20 @@ function renderhandleError(errors) {
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
 
                 let buttons = '';
-                // console.log(buttons);
+
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
-                        buttons += `<button style="min-width:50px;" onclick="btnModifyError('${error.id}')">sửa</button>`;
-                        console.log();
-                        buttons += `<button style="min-width:50px;" onclick="btnDeleteError('${error.id}')">xóa</button>`;
+                        buttons += `<button class="btnModify" style="min-width:50px;" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel" style="min-width:50px;" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
                     }
-
                     if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
-                        buttons += `<button style="min-width:50px;" onclick="btnHandleError('${error.id}')">Xử lý</button>`;
-                        buttons += `<button onclick="btnComplete('${error.id}')">Hoàn Thành</button>`;
+                        buttons += `<div style="display: inline-block"><button class="btnHandle" style="min-width:50px;" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave" style="min-width:50px; display: none" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<button class="btnComplete" onclick="handleComplete('${error.id}')">Hoàn Thành</button>`;
                     }
                 }
                 return `
-                <tr>
+                <tr class="request-error-${error.id}">
                     <td class="colum-processing" >${index + 1}</td>
                     <td class="colum-processing" >${error.department}</td>
                     <td class="colum-processing" >${error.category}</td>
@@ -136,13 +135,11 @@ function errorInput() {
     sidebars.forEach(sidebar => {
         let department = sidebar.querySelector('.sidebar__heading');
         let departmentId = department.id;
-        // console.log(departmentId);
         let categorys = Array.from(sidebar.querySelectorAll('.sidebar__menu__list'));
         categorys.forEach(category => {
             category.onclick = function () {
                 let categoryItem = category.innerHTML;
                 let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
-                // console.log(columDepartment);
                 let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
                 columDepartment.innerHTML = department.innerHTML;
                 columDepartment.setAttribute('id', `${departmentId}`);
@@ -171,10 +168,6 @@ function CreateError(data, callback, callback2) {
 
 // Hàm xử lý POST
 
-// btnConfirm.onclick = function (e) {
-//     e.stopPropagation();
-// }
-
 function handleCreateError() {
     let checkClickBtnConfirm = false;
     if (!checkClickBtnConfirm) {
@@ -189,8 +182,6 @@ function handleCreateError() {
             errorInputColums.forEach((errorInputColumItem, index) => {
                 if (index < 2 && errorInputColumItem.innerHTML !== '') {
                     let departmentId = errorInputColumItem.id;
-                    // console.log(departmentId);
-                    // console.log(errorInputColumItem);
                     errorInputs.forEach((errorInputItem, index) => {
                         if (index > 1 && errorInputItem.value !== '') {
                             let ErrorDb = {
@@ -263,7 +254,7 @@ close.onclick = function () {
 
 
 
-// Sửa báo lỗi
+// Sửa báo lỗi *********************************************
 
 // hàm sửa
 function btnModifyError(id) { //id của lỗi
@@ -272,59 +263,173 @@ function btnModifyError(id) { //id của lỗi
         .then(handleError => handleModify(handleError))
 }
 
-
-
-// hàm xử lý sửa đổi
+// hàm xử lý sửa đổi 
 function handleModify(handleError) {
     let save = document.querySelector('#container .content .btn-save');
+    let cancel = document.querySelector('#container .content .btn-cancel');
     let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
-    save.style.display = 'block';
+    save.style.display = 'inline-block';
+    cancel.style.display = 'inline-block';
     btnConfirm.style.display = 'none';
     let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'));
-    let department = '';
-    let category = '';
-    let deviceOptions = document.querySelectorAll('input[name="deviceOptions"]');
-    let location = document.querySelectorAll('input[name="location"]');
-    let errorDevice = document.querySelectorAll('input[name="errorDevice"]');
-    let errorNote = document.querySelectorAll('input[name="errorNote"]');
-    let img = document.querySelectorAll('input[name="img"]');
+    let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
 
-    errorInputColums.forEach((element) => {
-        department = element.department;
-        category = element.category;
-    })
-    console.log(department);
-    deviceOptions.value = handleError.deviceOptions;
-    location.value = handleError.location;
-    errorDevice.value = handleError.errorDevice;
-    errorNote.value = handleError.errorNote;
-    img.value = handleError.img;
+
+    //đẩy dữ liệu trở ngược lại bảng error-body
+    errorInputColums[0].innerHTML = handleError.department;
+    errorInputColums[1].innerHTML = handleError.category;
+
+    errorInputs[0].value = handleError.deviceOptions;
+    errorInputs[1].value = handleError.location;
+    errorInputs[2].value = handleError.errorDevice;
+    errorInputs[3].value = handleError.errorNote;
+    errorInputs[4].value = handleError.img;
+
+
+    cancel.onclick = function () {
+        save.style.display = 'none';
+        cancel.style.display = 'none';
+        btnConfirm.style.display = 'inline-block';
+        removeCreateError()
+        getError(renderhandleError);
+    }
 
 
     save.onclick = function () {
-        let date = new Date();
-        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
-        let dataUpdate = {
-            department: department.innerHTML,
-            category: category.innerHTML,
-            deviceOptions: deviceOptions.value,
-            location: location.value,
-            errorDevice: errorDevice.value,
-            errorNote: errorNote.value,
-            img: img.value,
-            errorTime: `(Ud) ${errorTimeClick}`
+        let confirmMessage = 'bạn có thực sự muốn sửa dữ liệu';
+
+        // lấy dữ liệu từ các ô input, td để đưa vào dataUpdate
+        let department = document.querySelector('#container .error-body td:nth-child(1)').innerHTML;
+        let category = document.querySelector('#container .error-body td:nth-child(2)').innerHTML;
+        let deviceOptions = document.querySelector('input[name="deviceOptions"]').value;
+        let location = document.querySelector('input[name="location"]').value;
+        let errorDevice = document.querySelector('input[name="errorDevice"]').value;
+        let errorNote = document.querySelector('input[name="errorNote"]').value;
+        let img = document.querySelector('input[name="img"]').value;
+
+        let result = false;
+
+        // nếu các biến này không phải là giá trị falsy (false 0 , "" (chuỗi rỗng), null, undefined, NaN (Not-a-Number))
+        if (department && category && deviceOptions && location && errorDevice) {
+            let date = new Date();
+            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+            let dataUpdate = {
+                department: department,
+                category: category,
+                deviceOptions: deviceOptions,
+                location: location,
+                errorDevice: errorDevice,
+                errorNote: errorNote,
+                img: img.value,
+                errorTime: `${errorTimeClick} (Ud)`
+            }
+
+            if (window.confirm(confirmMessage)) {
+                let options = {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+                }
+                fetch(handleErrors + '/' + handleError.id, options)
+                    .then(course => course.json())
+                    .then(function () {
+                        removeCreateError()
+                        getError(renderhandleError);
+                    })
+                    .then(function () {
+                        save.style.display = 'none';
+                        btnConfirm.style.display = 'block';
+                    })
+            }
+            result = true;
         }
+        //         })
+        //     }
+        // })
+        if (!result) {
+            alert('Bạn cần nhập đủ thông tin yêu cầu');
+        }
+    }
+}
+
+
+//End Sửa báo lỗi *********************************************
+
+
+
+// xóa lỗi ************************************************
+
+function btnDeleteError(id) {
+    let confirmMessage = 'Bạn có muốn thực sự muôn xóa yêu cầu này'
+    if (window.confirm(confirmMessage)) {
         let options = {
-            method: "PUT",
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+        fetch(handleErrors + '/' + id, options)
+            .then(reponse => reponse.json())
+            .then(() => {
+                let removeRequest = document.querySelector('.request-error-' + id)
+                if (removeRequest) {
+                    removeRequest.remove();
+                };
+            });
+    };
+};
+
+// End Hàm xóa**********************
+
+
+
+
+// xác nhận xử lý yêu cầu*****************
+// hàm xác nhận
+function confirmHandleError(id) {
+    fetch(handleErrors + '/' + id)
+        .then(reponse => reponse.json())
+        .then(error => handleConfirmError(error))
+
+};
+
+// hàm xử lý nút xác nhận ******************
+
+function handleConfirmError(error) {
+    let confirmMessage = 'Xác nhận xử lý yêu cầu này'
+    let date = new Date();
+    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+
+    let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
+    let btnCancel = document.querySelector('#container .processing-body .btnCancel'); // nút xóa
+    let btnHandle = document.querySelector('#container .processing-body .btnHandle'); // nút xử lý
+    let btnComplete = document.querySelector('#container .processing-body .btnComplete'); // nút hoàn thành
+    let btnLeave = document.querySelector('#container .processing-body .btnLeave'); // nút để lại
+
+    let errorHandleTime = errorTimeClick; // thời gian bắt đầu xác nhận xử lý
+    let userHandle = showUserName.innerHTML;
+    let dataUpdate = {
+        errorHandleTime: errorHandleTime,
+        handleUser: userHandle,
+        status: 2
+    }
+
+    if (window.confirm(confirmMessage)) {
+        btnLeave.style.display = 'inline-block';///////////////////////////////////////chưa hiển thị lên
+        btnHandle.style.display = 'none'; //////////////////////////////////////
+        let options = {
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
         }
-        fetch(handleErrors + '/' + handleError.id, options)
-            .then(course => course.json())
+        fetch(handleErrors + '/' + error.id, options)
+            .then(response => response.json())
             .then(function () {
-                removeCreateError()
+                // removeCreateError()
                 getError(renderhandleError);
             })
     }
@@ -332,9 +437,43 @@ function handleModify(handleError) {
 
 
 
+// End hàm xử lý nút xác nhận ************************
+
+
+//hàm xử lý nút hoàn thành **********************
+// hàm xác nhận hoàn Thành
+function handleComplete(id) {
+    fetch(handleErrors + '/' + id)
+        .then(reponse => reponse.json())
+        .then(error => handleBtnComplete(error))
+}
+
+//Hàm xử lý nút
+function handleBtnComplete(error) {
+    let confirmMessage = 'Xác nhận hoàn thành'
+    let date = new Date();
+    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+    let dataUpdate = {
+        completeTime: errorTimeClick,
+        status: 3
+    }
+    if (window.confirm(confirmMessage)) {
+        let options = {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+        }
+        fetch(handleErrors + '/' + error.id, options)
+            .then(response => response.json())
+            .then(function () {
+                // removeCreateError()
+                getError(renderhandleError);
+            })
+    }
+}
 
 
 
-
-
-
+// End hàm xử lý nút hoàn thành **********************

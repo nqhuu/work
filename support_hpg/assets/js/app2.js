@@ -108,8 +108,11 @@ function handlePutCourse(course) {
     let description = document.querySelector('input[name="description"]');
     createBtn.style.display = "none";
     modifyBtn.style.display = "inline-block";
+    //đẩy data ngược nên ô input
     name.value = course.name;
     description.value = course.description;
+
+    //update dữ liệu dk nhập vào ô input
     modifyBtn.onclick = function () {
         let dataUpdate = {
             name: name.value,
