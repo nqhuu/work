@@ -169,21 +169,17 @@ function CreateError(data, callback, callback2) {
 // Hàm xử lý POST
 
 function handleCreateError() {
-    let checkClickBtnConfirm = false;
-    if (!checkClickBtnConfirm) {
         btnConfirm.onclick = function (event) {
-            event.stopPropagation(); // ngăn chặn hành vi nổi bọt
             event.preventDefault(); // Ngăn chặn hành động mặc định của nút
             let date = new Date();
             let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
             let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
             let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
             let result = false
-            errorInputColums.forEach((errorInputColumItem, index) => {
-                if (index < 2 && errorInputColumItem.innerHTML !== '') {
-                    let departmentId = errorInputColumItem.id;
-                    errorInputs.forEach((errorInputItem, index) => {
-                        if (index > 1 && errorInputItem.value !== '') {
+
+            // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
+                if (errorInputColums[0] && errorInputColums[1] && errorInputs[0]&& errorInputs[1]&& errorInputs[2]&& errorInputs[3]) {
+                    let departmentId = errorInputColums[0].id;
                             let ErrorDb = {
                                 department: errorInputColums[0].innerHTML,
                                 category: errorInputColums[1].innerHTML,
@@ -201,21 +197,16 @@ function handleCreateError() {
                                 status: 1
                             };
                             CreateError(ErrorDb, () => {
-                                getError(renderhandleError)
-                            }, () => {
                                 removeCreateError()
+                            }, ()=>{
+                                getError(renderhandleError)
                             });
                             result = true;
-                        };
-                    });
                 };
-            });
             if (!result) {
                 alert('Bạn cần nhập đủ thông tin yêu cầu');
             };
-            checkClickBtnConfirm = true;
         };
-    };
 };
 
 // Đưa input về rỗng sau khi click button
@@ -417,8 +408,8 @@ function handleConfirmError(error) {
     }
 
     if (window.confirm(confirmMessage)) {
-        btnLeave.style.display = 'inline-block';///////////////////////////////////////chưa hiển thị lên
         btnHandle.style.display = 'none'; //////////////////////////////////////
+        btnLeave.style.display = 'inline-block';///////////////////////////////////////chưa hiển thị lên
         let options = {
             method: "PATCH",
             headers: {
