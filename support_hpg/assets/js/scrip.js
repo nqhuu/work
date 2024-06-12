@@ -3,7 +3,7 @@
 // db
 let account = 'http://localhost:3000/account';
 let categoty = 'http://localhost:3000/category';
-let handleError = 'http://localhost:3000/handleError'
+let handleErrors = 'http://localhost:3000/handleError'
 
 let loginBtn = document.querySelector('#login .login');
 let alertError = document.querySelector('#login .alert');
@@ -27,7 +27,107 @@ function start() {
 start();
 
 
+
 // đăng nhập ***************************************************************
+// chức năng đăng nhập
+function loginMain(callback,) {
+    fetch(account)
+        .then(reponse => reponse.json())
+        .then(callback)
+    // .then(() => {
+    //     getError(renderhandleError);
+    // })
+}
+// handleLogin - xử lý đăng nhập
+
+function handleLogin(accounts) {
+    loginBtn.onclick = function (e) {
+        e.preventDefault();
+        let flag = false
+        accounts.forEach(account => {
+            let username = document.querySelector('#username');
+            let password = document.querySelector('#password');
+            let userInp = username.value;
+            let passwordInp = password.value;
+            if (account.user === userInp && account.password === passwordInp) {
+                errorTable.style.display = 'block';
+                login.style.display = 'none'
+                headerLogin.style.display = 'none'
+                userNameLogin.style.display = 'block'
+                showUserName.innerHTML = account.user;
+                flag = true;
+                errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
+                getError(renderhandleError); // sau khi đăng nhập xong thì render lại
+            }
+        });
+        if (!flag) {
+            alertError.innerHTML = "bạn chưa nhập đúng tài khoản hoặc mật khẩu"
+        }
+    }
+}
+
+
+// end đăng nhập----------------------------------
+
+// get data
+
+function getError(callback) {
+    fetch(handleErrors)
+        .then(reponse => reponse.json())
+        .then(callback)
+}
+
+//render data lên trình duyệt
+
+function renderhandleError(errors) {
+    fetch(account)
+        .then(response => response.json())
+        .then(accounts => {
+            let currentUser = showUserName.innerHTML; // user đang đăng nhập
+            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+            let processingBody = document.querySelector('#container .content-processing .processing-body')
+            let htmls = "";
+            htmls = errors.map((error, index) => {
+                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+
+                let buttons = '';
+                // console.log(buttons);
+                if (currentAccount) {
+                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button style="min-width:50px;" onclick="btnModifyError('${error.id}')">sửa</button>`;
+                        console.log();
+                        buttons += `<button style="min-width:50px;" onclick="btnDeleteError('${error.id}')">xóa</button>`;
+                    }
+
+                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                        buttons += `<button style="min-width:50px;" onclick="btnHandleError('${error.id}')">Xử lý</button>`;
+                        buttons += `<button onclick="btnComplete('${error.id}')">Hoàn Thành</button>`;
+                    }
+                }
+                return `
+                <tr>
+                    <td class="colum-processing" >${index + 1}</td>
+                    <td class="colum-processing" >${error.department}</td>
+                    <td class="colum-processing" >${error.category}</td>
+                    <td class="colum-processing" >${error.deviceOptions}</td>
+                    <td class="colum-processing" >${error.location}</td>
+                    <td class="colum-processing" >${error.errorDevice}</td>
+                    <td class="colum-processing" >${error.errorNote}</td>
+                    <td class="colum-processing" >${error.img}</td>
+                    <td class="colum-processing" >${error.errorTime}</td>
+                    <td class="colum-processing" >${error.errorHandleTime}</td>
+                    <td class="colum-processing" >${error.completeTime}</td>
+                    <td class="colum-processing" >${error.errorUser}</td>
+                    <td class="colum-processing" >${error.handleUser}</td>
+                    <td class="colum-processing" >${resultStatus}</td>
+                    <td class="colum-processing">${buttons}</td>
+                </tr >
+                    `
+            });
+            processingBody.innerHTML = htmls.join('');
+        });
+}
 
 
 // nhập liêu ********** thêm điều kiện sau khi đăng nhập thì click mới nhận// đã cho sau hàm login những vẫn nhận click vào chọn hạng mục, đăng nhập vào đã thấy có ngay
@@ -35,13 +135,17 @@ start();
 function errorInput() {
     sidebars.forEach(sidebar => {
         let department = sidebar.querySelector('.sidebar__heading');
+        let departmentId = department.id;
+        // console.log(departmentId);
         let categorys = Array.from(sidebar.querySelectorAll('.sidebar__menu__list'));
         categorys.forEach(category => {
             category.onclick = function () {
                 let categoryItem = category.innerHTML;
                 let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
+                // console.log(columDepartment);
                 let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
                 columDepartment.innerHTML = department.innerHTML;
+                columDepartment.setAttribute('id', `${departmentId}`);
                 columCategory.innerHTML = categoryItem;
             }
         })
@@ -58,7 +162,7 @@ function CreateError(data, callback, callback2) {
         },
         body: JSON.stringify(data)
     };
-    fetch(handleError, options)
+    fetch(handleErrors, options)
         .then(reponse => reponse.json())
         .then(callback)
         .then(callback2)
@@ -67,25 +171,28 @@ function CreateError(data, callback, callback2) {
 
 // Hàm xử lý POST
 
+// btnConfirm.onclick = function (e) {
+//     e.stopPropagation();
+// }
+
 function handleCreateError() {
     let checkClickBtnConfirm = false;
     if (!checkClickBtnConfirm) {
         btnConfirm.onclick = function (event) {
+            event.stopPropagation(); // ngăn chặn hành vi nổi bọt
             event.preventDefault(); // Ngăn chặn hành động mặc định của nút
             let date = new Date();
-            // let hours = date.getHours();
             let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
             let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
-            // console.log(errorInputColums);
             let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
-            // console.log(errorInputs);
             let result = false
             errorInputColums.forEach((errorInputColumItem, index) => {
                 if (index < 2 && errorInputColumItem.innerHTML !== '') {
-                    // console.log(errorInputColumItem.innerHTML);
+                    let departmentId = errorInputColumItem.id;
+                    // console.log(departmentId);
+                    // console.log(errorInputColumItem);
                     errorInputs.forEach((errorInputItem, index) => {
                         if (index > 1 && errorInputItem.value !== '') {
-                            // console.log(errorInputItem.value);
                             let ErrorDb = {
                                 department: errorInputColums[0].innerHTML,
                                 category: errorInputColums[1].innerHTML,
@@ -98,7 +205,8 @@ function handleCreateError() {
                                 errorHandleTime: '',
                                 completeTime: '',
                                 errorUser: showUserName.innerHTML,
-                                HandleUser: '',
+                                handleUser: '',
+                                departmentId: departmentId,
                                 status: 1
                             };
                             CreateError(ErrorDb, () => {
@@ -113,7 +221,6 @@ function handleCreateError() {
             });
             if (!result) {
                 alert('Bạn cần nhập đủ thông tin yêu cầu');
-                // console.log('Bạn cần nhập đủ thông tin yêu cầu');
             };
             checkClickBtnConfirm = true;
         };
@@ -140,7 +247,7 @@ headerLogin.onclick = function (e) {
 }
 
 loginBlock.onclick = function (e) {
-    e.stopPropagation();
+    e.stopPropagation(); // loại bỏ tiến trình nổi bọt
 }
 
 login.onclick = function (e) {
@@ -153,92 +260,75 @@ close.onclick = function () {
 
 
 
-// get data
 
-function getError(callback) {
-    fetch(handleError)
-        .then(reponse => reponse.json())
-        .then(callback)
+
+
+// Sửa báo lỗi
+
+// hàm sửa
+function btnModifyError(id) { //id của lỗi
+    fetch(handleErrors + '/' + id)
+        .then(response => response.json())
+        .then(handleError => handleModify(handleError))
 }
 
-//render data lên trình duyệt
 
-function renderhandleError(handleErrors) {
-    let processingBody = document.querySelector('#container .content-processing .processing-body')
-    let htmls = "";
-    htmls = handleErrors.map((handleError, index) => {
-        let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-        let resultStatus = statusAll.find((istatusItem, index) => handleError.status == index + 1)
-        return `
-        <tr>
-        <td class="colum-processing" >${index + 1}</td>
-        <td class="colum-processing" >${handleError.department}</td>
-        <td class="colum-processing" >${handleError.category}</td>
-        <td class="colum-processing" >${handleError.deviceOptions}</td>
-        <td class="colum-processing" >${handleError.location}</td>
-        <td class="colum-processing" >${handleError.errorDevice}</td>
-        <td class="colum-processing" >${handleError.errorNote}</td>
-        <td class="colum-processing" >${handleError.img}</td>
-        <td class="colum-processing" >${handleError.errorTime}</td>
-        <td class="colum-processing" >${handleError.errorHandleTime}</td>
-        <td class="colum-processing" >${handleError.completeTime}</td>
-        <td class="colum-processing" >${handleError.errorUser}</td>
-        <td class="colum-processing" >${handleError.HandleUser}</td>
-        <td class="colum-processing" >${resultStatus}</td >
-    <td class="colum-processing"><button style="min-width:50px;">sửa</button> <button style="min-width:50px;">xóa</button> <button style="min-width:50px;">Xử lý</button> <button>Hoàn Thành</button></td>
-        </tr >
-        `
 
+// hàm xử lý sửa đổi
+function handleModify(handleError) {
+    let save = document.querySelector('#container .content .btn-save');
+    let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
+    save.style.display = 'block';
+    btnConfirm.style.display = 'none';
+    let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'));
+    let department = '';
+    let category = '';
+    let deviceOptions = document.querySelectorAll('input[name="deviceOptions"]');
+    let location = document.querySelectorAll('input[name="location"]');
+    let errorDevice = document.querySelectorAll('input[name="errorDevice"]');
+    let errorNote = document.querySelectorAll('input[name="errorNote"]');
+    let img = document.querySelectorAll('input[name="img"]');
+
+    errorInputColums.forEach((element) => {
+        department = element.department;
+        category = element.category;
     })
-    processingBody.innerHTML = htmls.join('');
-}
+    console.log(department);
+    deviceOptions.value = handleError.deviceOptions;
+    location.value = handleError.location;
+    errorDevice.value = handleError.errorDevice;
+    errorNote.value = handleError.errorNote;
+    img.value = handleError.img;
 
 
-
-// Nhập tài khoản
-
-
-
-// chức năng đăng nhập
-function loginMain(callback, callback2) {
-    fetch(account)
-        .then(reponse => reponse.json())
-        .then(callback)
-        .then(callback2)
-}
-// handleLogin - xử lý đăng nhập
-function handleLogin(accounts) {
-    loginBtn.onclick = function (e) {
-        e.preventDefault();
-        let flag = false
-        accounts.forEach(account => {
-            let username = document.querySelector('#username');
-            let password = document.querySelector('#password');
-            let userInp = username.value;
-            let passwordInp = password.value;
-            if (account.user === userInp && account.password === passwordInp) {
-                errorTable.style.display = 'block';
-                login.style.display = 'none'
-                headerLogin.style.display = 'none'
-                userNameLogin.style.display = 'block'
-                showUserName.innerHTML = account.user;
-                flag = true;
-                errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
-            }
-        });
-        if (!flag) {
-            alertError.innerHTML = "bạn chưa nhập đúng tài khoản hoặc mật khẩu"
+    save.onclick = function () {
+        let date = new Date();
+        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+        let dataUpdate = {
+            department: department.innerHTML,
+            category: category.innerHTML,
+            deviceOptions: deviceOptions.value,
+            location: location.value,
+            errorDevice: errorDevice.value,
+            errorNote: errorNote.value,
+            img: img.value,
+            errorTime: `(Ud) ${errorTimeClick}`
         }
-
+        let options = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+        }
+        fetch(handleErrors + '/' + handleError.id, options)
+            .then(course => course.json())
+            .then(function () {
+                removeCreateError()
+                getError(renderhandleError);
+            })
     }
 }
-
-
-// end đăng nhập----------------------------------
-
-
-
-
 
 
 

@@ -43,7 +43,7 @@
     <div id="container">
         <div class="sidebar_container">
             <div class="sidebar">
-                <h2 class="sidebar__heading">IT</h2>
+                <h2 class="sidebar__heading" id="it">IT</h2>
                 <ul class="sidebar__menu">
                     <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Phần
                             cứng</span>
@@ -53,7 +53,7 @@
                 </ul>
             </div>
             <div class="sidebar">
-                <h2 class="sidebar__heading">Cơ Điện</h2>
+                <h2 class="sidebar__heading" id="kythuat">Cơ Điện</h2>
                 <ul class="sidebar__menu">
                     <li class="sidebar__menu__list list-style"><span class="text-decoration" href="">Văn
                             phòng</span>
@@ -82,19 +82,22 @@
                         <tr class="row">
                             <td class="colum"></td>
                             <td class="colum"></td>
-                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" required
+                            <td class="colum"><input class="error-body-inp" type="text" name="deviceOptions"
+                                    placeholder="nhập" required id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" name="location"
+                                    placeholder="nhập" required id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" name="errorDevice"
+                                    placeholder="nhập" required id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="text" name="errorNote"
+                                    placeholder="nhập" id=""></td>
+                            <td class="colum"><input class="error-body-inp" type="file" name="img" placeholder="nhập"
                                     id=""></td>
-                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" required
-                                    id=""></td>
-                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" required
-                                    id=""></td>
-                            <td class="colum"><input class="error-body-inp" type="text" placeholder="nhập" id=""></td>
-                            <td class="colum"><input class="error-body-inp" type="file" placeholder="nhập" id=""></td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="btn-error">
                     <button class="btn btn-confirm">Xác nhận</button>
+                    <button class="btn btn-save" style="display: none;">Lưu</button>
                 </div>
             </div>
             <!-- end báo lỗi -->
@@ -110,7 +113,7 @@
                             <td class="colum">Hạng mục</td>
                             <td class="colum">Thiết bị/Phần mềm</td>
                             <td class="colum">Vị trí</td>
-                            <td class="colum">Lỗi</td>
+                            <td class="colum">Bổ sung/Lỗi</td>
                             <td class="colum">Ghi chú</td>
                             <td class="colum">Hình ảnh</td>
                             <td class="colum">Thời gian báo (h)</td>
