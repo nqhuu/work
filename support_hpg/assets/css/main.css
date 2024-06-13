@@ -53,7 +53,8 @@
     z-index: 1;
 }
 
-#header .user-name-login {
+/* css cho user-name-login */
+/* #header .user-name-login { 
     background-color: rgb(253, 42, 42);
     height: 60px;
     font-size: 20px;
@@ -63,7 +64,34 @@
     padding: 0 20px;
     text-transform: lowercase;
     z-index: 1;
+} */
+
+
+#header .user-name {
+    background-color: rgb(253, 42, 42);
+    height: 60px;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    /* text-transform: lowercase; */
+    z-index: 1;
 }
+
+#header .full-name {
+    padding-top: 10px;
+}
+
+#header .log-out {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 3px;
+    color: #000;
+}
+
+
 
 
 

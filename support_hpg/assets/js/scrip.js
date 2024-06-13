@@ -7,16 +7,18 @@ let handleErrors = 'http://localhost:3000/handleError'
 
 let loginBtn = document.querySelector('#login .login');
 let alertError = document.querySelector('#login .alert');
-let userNameLogin = document.querySelector('#header .user-name')
-let showUserName = document.querySelector('#header .user-name-login')
+let userNameLogin = document.querySelector('#header .user-name');
+let showUserName = document.querySelector('#header .user-name-login');
+let fullName = document.querySelector('#header .full-name');
+let logOut = document.querySelector('#header .log-out');
 let headerLogin = document.querySelector('#header .header__login');
 let login = document.querySelector('#login');
 let loginBlock = document.querySelector('#login .login-block');
 let close = document.querySelector('#login .close');
 let errorTable = document.querySelector('#container .content .content-error');
 let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
-let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'))
-let btnConfirm = document.querySelector('#container .btn-error .btn-confirm')
+let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'));
+let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
 // Hàm khởi động phần mềm
 function start() {
     loginMain(handleLogin);
@@ -26,6 +28,7 @@ function start() {
 
 start();
 
+let userLogin; // tài khoản đăng nhập
 
 
 // đăng nhập ***************************************************************
@@ -54,8 +57,12 @@ function handleLogin(accounts) {
                 login.style.display = 'none'
                 headerLogin.style.display = 'none'
                 userNameLogin.style.display = 'block'
+                showUserName.style.display = 'none'
                 showUserName.innerHTML = account.user;
+                fullName.innerHTML = account.fullname;
+                logOut.innerHTML = 'Thoát'
                 flag = true;
+                userLogin = account;
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleError); // sau khi đăng nhập xong thì render lại
             }
@@ -90,18 +97,25 @@ function renderhandleError(errors) {
             htmls = errors.map((error, index) => {
                 let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
-
                 let buttons = '';
-
+                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
+                let statusComplete = error.status === 3 ? 'none' : 'inline-block';
+                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
-                        buttons += `<button class="btnModify" style="min-width:50px;" onclick="btnModifyError('${error.id}')">Sửa</button> `;
-                        buttons += `<button class="btnCancel" style="min-width:50px;" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
                     }
                     if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
-                        buttons += `<div style="display: inline-block"><button class="btnHandle" style="min-width:50px;" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
-                        <button class="btnLeave" style="min-width:50px; display: none" onclick="leaveError('${error.id}')">Để lại</button></div> `;
-                        buttons += `<button class="btnComplete" onclick="handleComplete('${error.id}')">Hoàn Thành</button>`;
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                        </div>`
                     }
                 }
                 return `
@@ -169,44 +183,44 @@ function CreateError(data, callback, callback2) {
 // Hàm xử lý POST
 
 function handleCreateError() {
-        btnConfirm.onclick = function (event) {
-            event.preventDefault(); // Ngăn chặn hành động mặc định của nút
-            let date = new Date();
-            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
-            let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
-            let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
-            let result = false
+    btnConfirm.onclick = function (event) {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của nút
+        let date = new Date();
+        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+        let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
+        let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
+        let result = false
 
-            // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
-                if (errorInputColums[0] && errorInputColums[1] && errorInputs[0]&& errorInputs[1]&& errorInputs[2]&& errorInputs[3]) {
-                    let departmentId = errorInputColums[0].id;
-                            let ErrorDb = {
-                                department: errorInputColums[0].innerHTML,
-                                category: errorInputColums[1].innerHTML,
-                                deviceOptions: errorInputs[0].value,
-                                location: errorInputs[1].value,
-                                errorDevice: errorInputs[2].value,
-                                errorNote: errorInputs[3].value,
-                                img: errorInputs[4].value,
-                                errorTime: errorTimeClick,
-                                errorHandleTime: '',
-                                completeTime: '',
-                                errorUser: showUserName.innerHTML,
-                                handleUser: '',
-                                departmentId: departmentId,
-                                status: 1
-                            };
-                            CreateError(ErrorDb, () => {
-                                removeCreateError()
-                            }, ()=>{
-                                getError(renderhandleError)
-                            });
-                            result = true;
-                };
-            if (!result) {
-                alert('Bạn cần nhập đủ thông tin yêu cầu');
+        // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
+        if (errorInputColums[0] && errorInputColums[1] && errorInputs[0] && errorInputs[1] && errorInputs[2] && errorInputs[3]) {
+            let departmentId = errorInputColums[0].id;
+            let ErrorDb = {
+                department: errorInputColums[0].innerHTML,
+                category: errorInputColums[1].innerHTML,
+                deviceOptions: errorInputs[0].value,
+                location: errorInputs[1].value,
+                errorDevice: errorInputs[2].value,
+                errorNote: errorInputs[3].value,
+                img: errorInputs[4].value,
+                errorTime: errorTimeClick,
+                errorHandleTime: '',
+                completeTime: '',
+                errorUser: showUserName.innerHTML,
+                handleUser: '',
+                departmentId: departmentId,
+                status: 1
             };
+            CreateError(ErrorDb, () => {
+                removeCreateError()
+            }, () => {
+                getError(renderhandleError)
+            });
+            result = true;
         };
+        if (!result) {
+            alert('Bạn cần nhập đủ thông tin yêu cầu');
+        };
+    };
 };
 
 // Đưa input về rỗng sau khi click button
@@ -426,9 +440,63 @@ function handleConfirmError(error) {
     }
 }
 
-
-
 // End hàm xử lý nút xác nhận ************************
+
+//Nút để lại ************************
+function leaveError(id) {
+    fetch(handleErrors + '/' + id)
+        .then(reponse => reponse.json())
+        .then(error => handleLeaveError(error))
+}
+
+//Hàm xử lý nút để lại
+function handleLeaveError(error) {
+    let confirmMessage = 'Bạn có thực sự muốn để lại yêu cầu này'
+    let userNameHandle = error.handleUser;
+    let departmentId = error.departmentId;
+    fetch(account)
+        .then(reponse => reponse.json())
+        .then(userAcc => {
+            // let accountHandle = [];
+            let accountLogin;
+            // userAcc.filter(acc => {
+            //     if (userNameHandle === acc.user || (acc.department === departmentId && acc.permission === 'admin') || acc.permission === 'administrator') {
+            //         accountHandle.push(acc);
+            //     }
+            // });
+            // let accHandle = {};
+            // accountHandle.forEach(element => {
+            //     if (element.user === userNameHandle) {
+            //         accHandle.user = element.user;
+            //     };
+            //     if (element.permission === 'admin') {
+            //         accHandle.admin = element.permission
+            //     };
+            //     if (element.permission === 'administrator') {
+            //         accHandle.administrator = element.permission
+            //     };
+            // });
+            // return accHandle;
+            // userAcc.forEach(element => {
+            //     if (element)
+            // })
+        })
+        .then(accHandle => {
+            let dataUpdate = {
+                errorHandleTime: "",
+                handleUser: "",
+                status: 1
+            }
+            // if (accHandle.user === userNameHandle || ) {
+
+            // }
+
+        })
+
+
+
+}
+
 
 
 //hàm xử lý nút hoàn thành **********************
@@ -439,7 +507,7 @@ function handleComplete(id) {
         .then(error => handleBtnComplete(error))
 }
 
-//Hàm xử lý nút
+//Hàm xử lý nút hoàn thành
 function handleBtnComplete(error) {
     let confirmMessage = 'Xác nhận hoàn thành'
     let date = new Date();
