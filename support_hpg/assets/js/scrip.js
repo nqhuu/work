@@ -166,16 +166,16 @@ function errorInput() {
 
 // POST data ***************************
 // Hàm POST
-function CreateError(data, callback, callback2) {
+function CreateError(errorDb, callback, callback2) {
     let options = {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(errorDb)
     };
     fetch(handleErrors, options)
-        .then(reponse => reponse.json())
+        .then(response => response.json())
         .then(callback)
         .then(callback2)
 };
@@ -187,15 +187,14 @@ function handleCreateError() {
     btnConfirm.onclick = function (event) {
         event.preventDefault(); // Ngăn chặn hành động mặc định của nút
         let date = new Date();
-        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
         let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
         let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
         let result = false
-
         // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
         if (errorInputColums[0] && errorInputColums[1] && errorInputs[0] && errorInputs[1] && errorInputs[2] && errorInputs[3]) {
             let departmentId = errorInputColums[0].id;
-            let ErrorDb = {
+            let errorDb = {
                 department: errorInputColums[0].innerHTML,
                 category: errorInputColums[1].innerHTML,
                 deviceOptions: errorInputs[0].value,
@@ -211,7 +210,7 @@ function handleCreateError() {
                 departmentId: departmentId,
                 status: 1
             };
-            CreateError(ErrorDb, () => {
+            CreateError(errorDb, () => {
                 removeCreateError()
             }, () => {
                 getError(renderhandleError)
@@ -318,7 +317,7 @@ function handleModify(handleError) {
         // nếu các biến này không phải là giá trị falsy (false 0 , "" (chuỗi rỗng), null, undefined, NaN (Not-a-Number))
         if (department && category && deviceOptions && location && errorDevice) {
             let date = new Date();
-            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
             let dataUpdate = {
                 department: department,
                 category: category,
@@ -406,7 +405,7 @@ function confirmHandleError(id) {
 function handleConfirmError(error) {
     let confirmMessage = 'Xác nhận xử lý yêu cầu này'
     let date = new Date();
-    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
 
     let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
     let btnCancel = document.querySelector('#container .processing-body .btnCancel'); // nút xóa
@@ -455,8 +454,16 @@ function handleLeaveError(error) {
     let confirmMessage = 'Bạn có thực sự muốn để lại yêu cầu này'
     let userNameHandle = error.handleUser;
     let departmentId = error.departmentId;
-    console.log(accountLogin);
-    let dataUpdate = {
+    fetch(account)
+    .then(reponse => reponse.json())
+    .then(acc => {
+    let userRequest = {};
+    acc.forEach(element => {
+    if(element.user === error.errorUser){
+        userRequest = element
+            }
+        })
+        let dataUpdate = {
         errorHandleTime: "",
         handleUser: "",
         status: 1
@@ -478,8 +485,10 @@ function handleLeaveError(error) {
                 })
         }
     } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${accountLogin.fullname}, trưởng bộ phận hoặc IT`)
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận hoặc IT`)
     }
+    })
+    
 }
 
 
@@ -497,8 +506,17 @@ function handleBtnComplete(error) {
     let confirmMessage = 'Xác nhận hoàn thành'
     let userNameHandle = error.handleUser;
     let departmentId = error.departmentId;
-    let date = new Date();
-    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+    fetch(account)
+    .then(reponse => reponse.json())
+    .then(acc => {
+    let userRequest = {};
+    acc.forEach(element => {
+    if(element.user === error.errorUser){
+        userRequest = element
+            }
+        })
+        let date = new Date();
+    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
     let dataUpdate = {
         completeTime: errorTimeClick,
         status: 3
@@ -520,8 +538,11 @@ function handleBtnComplete(error) {
                 })
         }
     } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${accountLogin.fullname}, trưởng bộ phận hoặc IT`)
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận hoặc IT`)
     }
+    })
+    
+    
 }
 
 
