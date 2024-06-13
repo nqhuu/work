@@ -103,7 +103,7 @@ function renderhandleError(errors) {
                 let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
                 let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
                 let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-                let statusComplete = error.status === 3 ? 'none' : 'inline-block';
+                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
                 let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
@@ -192,7 +192,16 @@ function handleCreateError() {
         let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
         let result = false
         // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
-        if (errorInputColums[0] && errorInputColums[1] && errorInputs[0] && errorInputs[1] && errorInputs[2] && errorInputs[3]) {
+        if (// && errorInputColums[0] && errorInputColums[1] 
+            // && errorInputs[0] && errorInputs[1] 
+            // && errorInputs[2] && errorInputs[3] &&
+            errorInputColums[0].innerHTML.trim() !== ''
+            && errorInputColums[1].innerHTML.trim() !== ''
+            && errorInputs[0].value.trim() !== ''
+            && errorInputs[1].value.trim() !== ''
+            && errorInputs[2].value.trim() !== ''
+            && errorInputs[3].value.trim() !== ''
+            && errorInputs[4].value.trim() !== '') {
             let departmentId = errorInputColums[0].id;
             let errorDb = {
                 department: errorInputColums[0].innerHTML,
@@ -210,12 +219,12 @@ function handleCreateError() {
                 departmentId: departmentId,
                 status: 1
             };
+            result = true;
             CreateError(errorDb, () => {
                 removeCreateError()
             }, () => {
                 getError(renderhandleError)
             });
-            result = true;
         };
         if (!result) {
             alert('Bạn cần nhập đủ thông tin yêu cầu');
@@ -302,7 +311,6 @@ function handleModify(handleError) {
 
     save.onclick = function () {
         let confirmMessage = 'bạn có thực sự muốn sửa dữ liệu';
-
         // lấy dữ liệu từ các ô input, td để đưa vào dataUpdate
         let department = document.querySelector('#container .error-body td:nth-child(1)').innerHTML;
         let category = document.querySelector('#container .error-body td:nth-child(2)').innerHTML;
@@ -345,6 +353,7 @@ function handleModify(handleError) {
                     })
                     .then(function () {
                         save.style.display = 'none';
+                        cancel.style.display = 'none';
                         btnConfirm.style.display = 'block';
                     })
             }
@@ -392,7 +401,7 @@ function btnDeleteError(id) {
 
 
 // xác nhận xử lý yêu cầu*****************
-// hàm xác nhận
+// hàm xác nhận xử lý
 function confirmHandleError(id) {
     fetch(handleErrors + '/' + id)
         .then(reponse => reponse.json())
@@ -400,13 +409,12 @@ function confirmHandleError(id) {
 
 };
 
-// hàm xử lý nút xác nhận ******************
+// hàm xử lý nút xử lý ******************
 
 function handleConfirmError(error) {
     let confirmMessage = 'Xác nhận xử lý yêu cầu này'
     let date = new Date();
     let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-
     let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
     let btnCancel = document.querySelector('#container .processing-body .btnCancel'); // nút xóa
     let btnHandle = document.querySelector('#container .processing-body .btnHandle'); // nút xử lý
@@ -485,7 +493,7 @@ function handleLeaveError(error) {
                 })
         }
     } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận hoặc IT`)
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
     }
     })
     
@@ -513,6 +521,7 @@ function handleBtnComplete(error) {
     acc.forEach(element => {
     if(element.user === error.errorUser){
         userRequest = element
+        console.log(userRequest)
             }
         })
         let date = new Date();
@@ -538,7 +547,7 @@ function handleBtnComplete(error) {
                 })
         }
     } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận hoặc IT`)
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
     }
     })
     
