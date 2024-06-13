@@ -28,7 +28,7 @@ function start() {
 
 start();
 
-let userLogin; // tài khoản đăng nhập
+let accountLogin; // tài khoản đăng nhập
 
 
 // đăng nhập ***************************************************************
@@ -62,7 +62,7 @@ function handleLogin(accounts) {
                 fullName.innerHTML = account.fullname;
                 logOut.innerHTML = 'Thoát'
                 flag = true;
-                userLogin = account;
+                accountLogin = account;
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleError); // sau khi đăng nhập xong thì render lại
             }
@@ -95,6 +95,7 @@ function renderhandleError(errors) {
             let processingBody = document.querySelector('#container .content-processing .processing-body')
             let htmls = "";
             htmls = errors.map((error, index) => {
+                let accountRequest = accounts.find(acc => acc.user === error.errorUser)
                 let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
                 let buttons = '';
@@ -454,47 +455,31 @@ function handleLeaveError(error) {
     let confirmMessage = 'Bạn có thực sự muốn để lại yêu cầu này'
     let userNameHandle = error.handleUser;
     let departmentId = error.departmentId;
-    fetch(account)
-        .then(reponse => reponse.json())
-        .then(userAcc => {
-            // let accountHandle = [];
-            let accountLogin;
-            // userAcc.filter(acc => {
-            //     if (userNameHandle === acc.user || (acc.department === departmentId && acc.permission === 'admin') || acc.permission === 'administrator') {
-            //         accountHandle.push(acc);
-            //     }
-            // });
-            // let accHandle = {};
-            // accountHandle.forEach(element => {
-            //     if (element.user === userNameHandle) {
-            //         accHandle.user = element.user;
-            //     };
-            //     if (element.permission === 'admin') {
-            //         accHandle.admin = element.permission
-            //     };
-            //     if (element.permission === 'administrator') {
-            //         accHandle.administrator = element.permission
-            //     };
-            // });
-            // return accHandle;
-            // userAcc.forEach(element => {
-            //     if (element)
-            // })
-        })
-        .then(accHandle => {
-            let dataUpdate = {
-                errorHandleTime: "",
-                handleUser: "",
-                status: 1
+    console.log(accountLogin);
+    let dataUpdate = {
+        errorHandleTime: "",
+        handleUser: "",
+        status: 1
+    }
+    if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
+        if (window.confirm(confirmMessage)) {
+            let options = {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
             }
-            // if (accHandle.user === userNameHandle || ) {
-
-            // }
-
-        })
-
-
-
+            fetch(handleErrors + '/' + error.id, options)
+                .then(course => course.json())
+                .then(function () {
+                    // removeCreateError()
+                    getError(renderhandleError);
+                })
+        }
+    } else {
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${accountLogin.fullname}, trưởng bộ phận hoặc IT`)
+    }
 }
 
 
@@ -510,26 +495,32 @@ function handleComplete(id) {
 //Hàm xử lý nút hoàn thành
 function handleBtnComplete(error) {
     let confirmMessage = 'Xác nhận hoàn thành'
+    let userNameHandle = error.handleUser;
+    let departmentId = error.departmentId;
     let date = new Date();
     let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
     let dataUpdate = {
         completeTime: errorTimeClick,
         status: 3
     }
-    if (window.confirm(confirmMessage)) {
-        let options = {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+    if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
+        if (window.confirm(confirmMessage)) {
+            let options = {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+            }
+            fetch(handleErrors + '/' + error.id, options)
+                .then(response => response.json())
+                .then(function () {
+                    // removeCreateError()
+                    getError(renderhandleError);
+                })
         }
-        fetch(handleErrors + '/' + error.id, options)
-            .then(response => response.json())
-            .then(function () {
-                // removeCreateError()
-                getError(renderhandleError);
-            })
+    } else {
+        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${accountLogin.fullname}, trưởng bộ phận hoặc IT`)
     }
 }
 
