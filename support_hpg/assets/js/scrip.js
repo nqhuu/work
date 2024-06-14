@@ -30,6 +30,15 @@ start();
 
 let accountLogin; // tài khoản đăng nhập
 
+document.addEventListener('DOMContentLoaded', function () { //đảm vảo gọi xong DOM thì sau đó mới thực hiện các hàm bên trong
+    init();
+});
+
+function init() {
+    // handleDepartments();
+    errorInput();
+    // Các hàm khác nếu cần thiết
+}
 
 // đăng nhập ***************************************************************
 // chức năng đăng nhập
