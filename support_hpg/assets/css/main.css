@@ -92,6 +92,9 @@
 }
 
 
+#header .user-name {
+    cursor: pointer;
+}
 
 
 

@@ -22,7 +22,7 @@ let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
 // Hàm khởi động phần mềm
 function start() {
     loginMain(handleLogin);
-    getError(renderhandleError);
+    // getError(renderhandleError);
     handleCreateError();
 }
 
@@ -33,13 +33,13 @@ let accountLogin; // tài khoản đăng nhập
 
 // đăng nhập ***************************************************************
 // chức năng đăng nhập
-function loginMain(callback,) {
+function loginMain(callback) {
     fetch(account)
         .then(reponse => reponse.json())
         .then(callback)
-    // .then(() => {
-    //     getError(renderhandleError);
-    // })
+        .then(() => {
+            getError(renderhandleError);
+        })
 }
 // handleLogin - xử lý đăng nhập
 
@@ -60,9 +60,11 @@ function handleLogin(accounts) {
                 showUserName.style.display = 'none'
                 showUserName.innerHTML = account.user;
                 fullName.innerHTML = account.fullname;
-                logOut.innerHTML = 'Thoát'
+                logOut.innerHTML = 'Thoát';
+                // logOut.style.display = 'none'
                 flag = true;
                 accountLogin = account;
+                localStorage.setItem('user', JSON.stringify(userInp)) // lưu vào localstore để thực hiện việt logout đồng thời sử dụng để lưu thông tin đăng nhập khi reload lại trang
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleError); // sau khi đăng nhập xong thì render lại
             }
@@ -74,7 +76,42 @@ function handleLogin(accounts) {
 }
 
 
+
 // end đăng nhập----------------------------------
+
+// ĐĂNG XUẤT ..............................
+logOut.onclick = function () {
+    localStorage.removeItem('user');
+    errorTable.style.display = 'none';
+    login.style.display = 'block'
+    userNameLogin.style.display = 'none'
+}
+
+
+// Reload lại trang sẽ kiểm tra user trong localStore nếu tồn tại thì sẽ tiếp tục phiên làm việc
+// nếu không thì sẽ cần đăng nhập để có thể thực hiện thao tác tạo báo lỗi 
+window.addEventListener('load', function () {
+    const user = localStorage.getItem('user'); // gọi user lưu trong localStore
+    if (user) { // nếu tồn tại user thì thực hiện các nội dung bên dưới
+        fetch(account) // gọi lại API để lấy lại các account tương ứng với user trong localStore
+            .then(response => response.json())
+            .then(acc => {
+                accountLogin = acc.find(element => `"${element.user}"` === user)
+                errorTable.style.display = 'block';
+                login.style.display = 'none'
+                headerLogin.style.display = 'none'
+                userNameLogin.style.display = 'block'
+                showUserName.style.display = 'none'
+                showUserName.innerHTML = accountLogin.user;
+                fullName.innerHTML = accountLogin.fullname;
+                logOut.innerHTML = 'Thoát';
+            })
+    } else {
+        errorTable.style.display = 'none';
+        // login.style.display = 'block'
+        userNameLogin.style.display = 'none'
+    }
+});
 
 // get data
 
@@ -92,12 +129,27 @@ function renderhandleError(errors) {
         .then(accounts => {
             let currentUser = showUserName.innerHTML; // user đang đăng nhập
             let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+
             let processingBody = document.querySelector('#container .content-processing .processing-body')
             let htmls = "";
             htmls = errors.map((error, index) => {
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser)
+                let fullNameRequest = accountRequest.fullname;
+
+                /** hiển thị tên người xử lý lỗi -- chưa xong
+                // let accountHandle = '';
+                // let accountHandle = error.status === 1 ? '' : currentAccount.fullname;
+
+                // if (currentAccount) {
+                //     accountHandle = currentAccount.fullname;
+                // }
+                // if (!currentAccount) {
+                //     accountHandle = '';
+                // }
+                */
                 let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+
                 let buttons = '';
                 let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
                 let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
@@ -105,6 +157,7 @@ function renderhandleError(errors) {
                 let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
                 let statusComplete = error.status === 2 ? 'inline-block' : 'none';
                 let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
                         buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
@@ -119,6 +172,7 @@ function renderhandleError(errors) {
                         </div>`
                     }
                 }
+
                 return `
                 <tr class="request-error-${error.id}">
                     <td class="colum-processing" >${index + 1}</td>
@@ -132,7 +186,7 @@ function renderhandleError(errors) {
                     <td class="colum-processing" >${error.errorTime}</td>
                     <td class="colum-processing" >${error.errorHandleTime}</td>
                     <td class="colum-processing" >${error.completeTime}</td>
-                    <td class="colum-processing" >${error.errorUser}</td>
+                    <td class="colum-processing" >${fullNameRequest}</td>
                     <td class="colum-processing" >${error.handleUser}</td>
                     <td class="colum-processing" >${resultStatus}</td>
                     <td class="colum-processing">${buttons}</td>
@@ -187,7 +241,7 @@ function handleCreateError() {
     btnConfirm.onclick = function (event) {
         event.preventDefault(); // Ngăn chặn hành động mặc định của nút
         let date = new Date();
-        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
+        let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
         let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
         let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
         let result = false
@@ -199,9 +253,7 @@ function handleCreateError() {
             && errorInputColums[1].innerHTML.trim() !== ''
             && errorInputs[0].value.trim() !== ''
             && errorInputs[1].value.trim() !== ''
-            && errorInputs[2].value.trim() !== ''
-            && errorInputs[3].value.trim() !== ''
-            && errorInputs[4].value.trim() !== '') {
+            && errorInputs[2].value.trim() !== '') {
             let departmentId = errorInputColums[0].id;
             let errorDb = {
                 department: errorInputColums[0].innerHTML,
@@ -263,7 +315,9 @@ close.onclick = function () {
     login.style.display = 'none';
 }
 
-
+// showUserName.onmouseenter = function () {
+//di chuột vào phần tử
+// }
 
 
 
@@ -325,7 +379,7 @@ function handleModify(handleError) {
         // nếu các biến này không phải là giá trị falsy (false 0 , "" (chuỗi rỗng), null, undefined, NaN (Not-a-Number))
         if (department && category && deviceOptions && location && errorDevice) {
             let date = new Date();
-            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
+            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
             let dataUpdate = {
                 department: department,
                 category: category,
@@ -414,7 +468,7 @@ function confirmHandleError(id) {
 function handleConfirmError(error) {
     let confirmMessage = 'Xác nhận xử lý yêu cầu này'
     let date = new Date();
-    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
     let btnCancel = document.querySelector('#container .processing-body .btnCancel'); // nút xóa
     let btnHandle = document.querySelector('#container .processing-body .btnHandle'); // nút xử lý
@@ -462,41 +516,41 @@ function handleLeaveError(error) {
     let confirmMessage = 'Bạn có thực sự muốn để lại yêu cầu này'
     let userNameHandle = error.handleUser;
     let departmentId = error.departmentId;
-    fetch(account)
-    .then(reponse => reponse.json())
-    .then(acc => {
     let userRequest = {};
-    acc.forEach(element => {
-    if(element.user === error.errorUser){
-        userRequest = element
+    fetch(account)
+        .then(reponse => reponse.json())
+        .then(acc => {
+            acc.forEach(element => {
+                if (element.user === error.handleUser) {
+                    userRequest = element
+                }
+            })
+            let dataUpdate = {
+                errorHandleTime: "",
+                handleUser: "",
+                status: 1
+            }
+            if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
+                if (window.confirm(confirmMessage)) {
+                    let options = {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+                    }
+                    fetch(handleErrors + '/' + error.id, options)
+                        .then(course => course.json())
+                        .then(function () {
+                            // removeCreateError()
+                            getError(renderhandleError);
+                        })
+                }
+            } else {
+                alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
             }
         })
-        let dataUpdate = {
-        errorHandleTime: "",
-        handleUser: "",
-        status: 1
-    }
-    if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
-        if (window.confirm(confirmMessage)) {
-            let options = {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
-            }
-            fetch(handleErrors + '/' + error.id, options)
-                .then(course => course.json())
-                .then(function () {
-                    // removeCreateError()
-                    getError(renderhandleError);
-                })
-        }
-    } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
-    }
-    })
-    
+
 }
 
 
@@ -514,46 +568,121 @@ function handleBtnComplete(error) {
     let confirmMessage = 'Xác nhận hoàn thành'
     let userNameHandle = error.handleUser;
     let departmentId = error.departmentId;
-    fetch(account)
-    .then(reponse => reponse.json())
-    .then(acc => {
     let userRequest = {};
-    acc.forEach(element => {
-    if(element.user === error.errorUser){
-        userRequest = element
-        console.log(userRequest)
+    fetch(account)
+        .then(reponse => reponse.json())
+        .then(acc => {
+            acc.forEach(element => {
+                if (element.user === error.handleUser) {
+                    userRequest = element
+                }
+            })
+            let date = new Date();
+            let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            let dataUpdate = {
+                completeTime: errorTimeClick,
+                status: 3
+            }
+            if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
+                if (window.confirm(confirmMessage)) {
+                    let options = {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+                    }
+                    fetch(handleErrors + '/' + error.id, options)
+                        .then(response => response.json())
+                        .then(function () {
+                            // removeCreateError()
+                            getError(renderhandleError);
+                        })
+                }
+            } else {
+                alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
             }
         })
-        let date = new Date();
-    let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-    let dataUpdate = {
-        completeTime: errorTimeClick,
-        status: 3
-    }
-    if (accountLogin.user === userNameHandle || (accountLogin.department === departmentId && accountLogin.permission === 'admin') || accountLogin.permission === 'administrator') {
-        if (window.confirm(confirmMessage)) {
-            let options = {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
-            }
-            fetch(handleErrors + '/' + error.id, options)
-                .then(response => response.json())
-                .then(function () {
-                    // removeCreateError()
-                    getError(renderhandleError);
-                })
-        }
-    } else {
-        alert(`Bạn không có quyền để lại yêu cầu này, hãy tìm ${userRequest.fullname}, trưởng bộ phận của bạn hoặc administrator`)
-    }
-    })
-    
-    
+
+
 }
 
-
-
 // End hàm xử lý nút hoàn thành **********************
+
+
+//Lọc thông tin theo từng bộ phận
+console.log(departments);
+// Hàm render theo bộ phận
+function renderDepartments(errors) {
+    fetch(account)
+        .then(response => response.json())
+        .then(accounts => {
+            let currentUser = showUserName.innerHTML; // user đang đăng nhập
+            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+
+            let processingBody = document.querySelector('#container .content-processing .processing-body')
+            let htmls = "";
+            htmls = errors.filter((error, index) => {
+                let accountRequest = accounts.find(acc => acc.user === error.errorUser)
+                let fullNameRequest = accountRequest.fullname;
+
+                /** hiển thị tên người xử lý lỗi -- chưa xong
+                // let accountHandle = '';
+                // let accountHandle = error.status === 1 ? '' : currentAccount.fullname;
+
+                // if (currentAccount) {
+                //     accountHandle = currentAccount.fullname;
+                // }
+                // if (!currentAccount) {
+                //     accountHandle = '';
+                // }
+                */
+                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+
+                let buttons = '';
+                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
+                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
+                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+
+                if (currentAccount) {
+                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                    }
+                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                        </div>`
+                    }
+                }
+
+                return `
+                <tr class="request-error-${error.id}">
+                    <td class="colum-processing" >${index + 1}</td>
+                    <td class="colum-processing" >${error.department}</td>
+                    <td class="colum-processing" >${error.category}</td>
+                    <td class="colum-processing" >${error.deviceOptions}</td>
+                    <td class="colum-processing" >${error.location}</td>
+                    <td class="colum-processing" >${error.errorDevice}</td>
+                    <td class="colum-processing" >${error.errorNote}</td>
+                    <td class="colum-processing" >${error.img}</td>
+                    <td class="colum-processing" >${error.errorTime}</td>
+                    <td class="colum-processing" >${error.errorHandleTime}</td>
+                    <td class="colum-processing" >${error.completeTime}</td>
+                    <td class="colum-processing" >${fullNameRequest}</td>
+                    <td class="colum-processing" >${error.handleUser}</td>
+                    <td class="colum-processing" >${resultStatus}</td>
+                    <td class="colum-processing">${buttons}</td>
+                </tr >
+                    `
+            });
+            processingBody.innerHTML = htmls.join('');
+        });
+}
