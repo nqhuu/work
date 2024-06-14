@@ -206,6 +206,11 @@
     padding: 0 0 10px 3px;
     font-size: 18px;
     color: rgb(0, 17, 255);
+    cursor: pointer;
+}
+
+.sidebar_container .sidebar .sidebar__heading:hover {
+    color: #f82020;
 }
 
 .sidebar_container .sidebar .sidebar__menu__list {

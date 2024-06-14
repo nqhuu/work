@@ -22,7 +22,7 @@ let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
 // Hàm khởi động phần mềm
 function start() {
     loginMain(handleLogin);
-    // getError(renderhandleError);
+    getError(renderhandleError);
     handleCreateError();
 }
 
@@ -118,12 +118,13 @@ window.addEventListener('load', function () {
 function getError(callback) {
     fetch(handleErrors)
         .then(reponse => reponse.json())
-        .then(callback)
+        .then(callback) // cách viết khách là .then (data => callback(data))
+        .catch(error => console.error('Error:', error));
 }
 
 //render data lên trình duyệt
 
-function renderhandleError(errors) {
+function renderhandleError(errors) { // errors chính là data của hàm getError
     fetch(account)
         .then(response => response.json())
         .then(accounts => {
@@ -174,24 +175,25 @@ function renderhandleError(errors) {
                 }
 
                 return `
-                <tr class="request-error-${error.id}">
-                    <td class="colum-processing" >${index + 1}</td>
-                    <td class="colum-processing" >${error.department}</td>
-                    <td class="colum-processing" >${error.category}</td>
-                    <td class="colum-processing" >${error.deviceOptions}</td>
-                    <td class="colum-processing" >${error.location}</td>
-                    <td class="colum-processing" >${error.errorDevice}</td>
-                    <td class="colum-processing" >${error.errorNote}</td>
-                    <td class="colum-processing" >${error.img}</td>
-                    <td class="colum-processing" >${error.errorTime}</td>
-                    <td class="colum-processing" >${error.errorHandleTime}</td>
-                    <td class="colum-processing" >${error.completeTime}</td>
-                    <td class="colum-processing" >${fullNameRequest}</td>
-                    <td class="colum-processing" >${error.handleUser}</td>
-                    <td class="colum-processing" >${resultStatus}</td>
-                    <td class="colum-processing">${buttons}</td>
-                </tr >
-                    `
+                                <tr class="request-error-${error.id}">
+                                    <td class="colum-processing" >${index + 1}</td>
+                                    <td class="colum-processing" >${error.department}</td>
+                                    <td class="colum-processing" >${error.category}</td>
+                                    <td class="colum-processing" >${error.deviceOptions}</td>
+                                    <td class="colum-processing" >${error.location}</td>
+                                    <td class="colum-processing" >${error.errorDevice}</td>
+                                    <td class="colum-processing" >${error.errorNote}</td>
+                                    <td class="colum-processing" >${error.img}</td>
+                                    <td class="colum-processing" >${error.errorTime}</td>
+                                    <td class="colum-processing" >${error.errorHandleTime}</td>
+                                    <td class="colum-processing" >${error.completeTime}</td>
+                                    <td class="colum-processing" >${fullNameRequest}</td>
+                                    <td class="colum-processing" >${error.handleUser}</td>
+                                    <td class="colum-processing" >${resultStatus}</td>
+                                    <td class="colum-processing">${buttons}</td>
+                                </tr >
+                                    `
+
             });
             processingBody.innerHTML = htmls.join('');
         });
@@ -213,6 +215,8 @@ function errorInput() {
                 columDepartment.innerHTML = department.innerHTML;
                 columDepartment.setAttribute('id', `${departmentId}`);
                 columCategory.innerHTML = categoryItem;
+                console.log(columDepartment.innerHTML);
+                console.log(columCategory.innerHTML);
             }
         })
     })
@@ -359,7 +363,7 @@ function handleModify(handleError) {
         cancel.style.display = 'none';
         btnConfirm.style.display = 'inline-block';
         removeCreateError()
-        getError(renderhandleError);
+        // getError(renderhandleError);
     }
 
 
@@ -553,6 +557,8 @@ function handleLeaveError(error) {
 
 }
 
+// END nút để lại
+
 
 
 //hàm xử lý nút hoàn thành **********************
@@ -610,10 +616,20 @@ function handleBtnComplete(error) {
 // End hàm xử lý nút hoàn thành **********************
 
 
+
 //Lọc thông tin theo từng bộ phận
-console.log(departments);
 // Hàm render theo bộ phận
-function renderDepartments(errors) {
+
+
+let handledepartmens = departments.forEach(department => {
+    department.onclick = function () {
+        let departmentIdrender = department.getAttribute('id');
+        getError(errors => renderDepartments(departmentIdrender, errors)); //
+    };
+});
+
+function renderDepartments(departmentIdrender, errors) {
+
     fetch(account)
         .then(response => response.json())
         .then(accounts => {
@@ -622,21 +638,14 @@ function renderDepartments(errors) {
 
             let processingBody = document.querySelector('#container .content-processing .processing-body')
             let htmls = "";
-            htmls = errors.filter((error, index) => {
+            let departmentError = errors.filter(element => {
+                return element.departmentId === departmentIdrender
+            })
+
+            htmls = departmentError.map((error, index) => {
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser)
                 let fullNameRequest = accountRequest.fullname;
 
-                /** hiển thị tên người xử lý lỗi -- chưa xong
-                // let accountHandle = '';
-                // let accountHandle = error.status === 1 ? '' : currentAccount.fullname;
-
-                // if (currentAccount) {
-                //     accountHandle = currentAccount.fullname;
-                // }
-                // if (!currentAccount) {
-                //     accountHandle = '';
-                // }
-                */
                 let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
 
@@ -655,7 +664,7 @@ function renderDepartments(errors) {
                     }
                     if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
                         buttons += `<div style="display: inline-block">
-                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
                         <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
                         buttons += `<div>
                         <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
@@ -664,25 +673,26 @@ function renderDepartments(errors) {
                 }
 
                 return `
-                <tr class="request-error-${error.id}">
-                    <td class="colum-processing" >${index + 1}</td>
-                    <td class="colum-processing" >${error.department}</td>
-                    <td class="colum-processing" >${error.category}</td>
-                    <td class="colum-processing" >${error.deviceOptions}</td>
-                    <td class="colum-processing" >${error.location}</td>
-                    <td class="colum-processing" >${error.errorDevice}</td>
-                    <td class="colum-processing" >${error.errorNote}</td>
-                    <td class="colum-processing" >${error.img}</td>
-                    <td class="colum-processing" >${error.errorTime}</td>
-                    <td class="colum-processing" >${error.errorHandleTime}</td>
-                    <td class="colum-processing" >${error.completeTime}</td>
-                    <td class="colum-processing" >${fullNameRequest}</td>
-                    <td class="colum-processing" >${error.handleUser}</td>
-                    <td class="colum-processing" >${resultStatus}</td>
-                    <td class="colum-processing">${buttons}</td>
-                </tr >
-                    `
+                            <tr class="request-error-${error.id}">
+                                <td class="colum-processing" >${index + 1}</td>
+                                <td class="colum-processing" >${error.department}</td>
+                                <td class="colum-processing" >${error.category}</td>
+                                <td class="colum-processing" >${error.deviceOptions}</td>
+                                <td class="colum-processing" >${error.location}</td>
+                                <td class="colum-processing" >${error.errorDevice}</td>
+                                <td class="colum-processing" >${error.errorNote}</td>
+                                <td class="colum-processing" >${error.img}</td>
+                                <td class="colum-processing" >${error.errorTime}</td>
+                                <td class="colum-processing" >${error.errorHandleTime}</td>
+                                <td class="colum-processing" >${error.completeTime}</td>
+                                <td class="colum-processing" >${fullNameRequest}</td>
+                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${resultStatus}</td>
+                                <td class="colum-processing">${buttons}</td>
+                            </tr >
+                                `
             });
             processingBody.innerHTML = htmls.join('');
         });
 }
+
