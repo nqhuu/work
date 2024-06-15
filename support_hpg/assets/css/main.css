@@ -21,6 +21,7 @@
 
 #header .header__logo {
     padding-left: 10px;
+    cursor: pointer;
 }
 
 .font-size {
@@ -256,6 +257,11 @@
     position: absolute;
     right: 2px;
     padding-top: 10px;
+}
+
+
+#container .btn-Handle {
+    margin: 2px;
 }
 
 #container .content .btn {

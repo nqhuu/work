@@ -5,6 +5,7 @@ let account = 'http://localhost:3000/account';
 let categoty = 'http://localhost:3000/category';
 let handleErrors = 'http://localhost:3000/handleError'
 
+let home = document.querySelector('#header .header__logo');
 let loginBtn = document.querySelector('#login .login');
 let alertError = document.querySelector('#login .alert');
 let userNameLogin = document.querySelector('#header .user-name');
@@ -21,8 +22,8 @@ let departments = Array.from(document.querySelectorAll('#container .sidebar__hea
 let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
 // Hàm khởi động phần mềm
 function start() {
-    loginMain(handleLogin);
     getError(renderhandleError);
+    loginMain(handleLogin);
     handleCreateError();
 }
 
@@ -46,9 +47,9 @@ function loginMain(callback) {
     fetch(account)
         .then(reponse => reponse.json())
         .then(callback)
-        .then(() => {
-            getError(renderhandleError);
-        })
+    // .then(() => {
+    //     getError(renderhandleErrorUser);
+    // })
 }
 // handleLogin - xử lý đăng nhập
 
@@ -75,7 +76,7 @@ function handleLogin(accounts) {
                 accountLogin = account;
                 localStorage.setItem('user', JSON.stringify(userInp)) // lưu vào localstore để thực hiện việt logout đồng thời sử dụng để lưu thông tin đăng nhập khi reload lại trang
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
-                getError(renderhandleError); // sau khi đăng nhập xong thì render lại
+                getError(renderhandleErrorUser); // sau khi đăng nhập xong thì render lại
             }
         });
         if (!flag) {
@@ -170,15 +171,15 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
 
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
-                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
-                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                        buttons += `<button class="btnModify btn-Handle" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel btn-Handle" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
                     }
                     if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
                         buttons += `<div style="display: inline-block">
-                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
-                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        <button class="btnHandle btn-Handle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave btn-Handle" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
                         buttons += `<div>
-                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                        <button class="btnComplete btn-Handle" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check"></p>
                         </div>`
                     }
                 }
@@ -224,8 +225,6 @@ function errorInput() {
                 columDepartment.innerHTML = department.innerHTML;
                 columDepartment.setAttribute('id', `${departmentId}`);
                 columCategory.innerHTML = categoryItem;
-                console.log(columDepartment.innerHTML);
-                console.log(columCategory.innerHTML);
             }
         })
     })
@@ -647,11 +646,11 @@ function renderDepartments(departmentIdrender, errors) {
 
             let processingBody = document.querySelector('#container .content-processing .processing-body')
             let htmls = "";
-            let departmentError = errors.filter(element => {
+            let departmentErrorUser = errors.filter(element => {
                 return element.departmentId === departmentIdrender
             })
 
-            htmls = departmentError.map((error, index) => {
+            htmls = departmentErrorUser.map((error, index) => {
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser)
                 let fullNameRequest = accountRequest.fullname;
 
@@ -705,3 +704,84 @@ function renderDepartments(departmentIdrender, errors) {
         });
 }
 
+// END Lọc thông tin theo từng bộ phận
+
+//-HOME---------------------------------------------------------------
+home.onclick = function (e) {
+    e.preventDefault();
+    getError(renderhandleError);
+}
+
+// END-HOME---------------------------------------------------------------
+
+// render theo user đăng nhập
+fullName.onclick = function (e) {
+    getError(renderhandleErrorUser)
+}
+
+
+function renderhandleErrorUser(errors) {
+    fetch(account)
+        .then(response => response.json())
+        .then(accounts => {
+            let currentUser = showUserName.innerHTML; // user đang đăng nhập
+            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+
+            let processingBody = document.querySelector('#container .content-processing .processing-body')
+            let htmls = "";
+            let departmentErrorUser = errors.filter(element => {
+                return element.errorUser === currentUser
+            })
+
+            htmls = departmentErrorUser.map((error, index) => {
+                let fullNameRequest = currentAccount.fullname;
+
+                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+
+                let buttons = '';
+                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
+                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
+                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+
+                if (currentAccount) {
+                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                    }
+                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
+                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                        </div>`
+                    }
+                }
+
+                return `
+                            <tr class="request-error-${error.id}">
+                                <td class="colum-processing" >${index + 1}</td>
+                                <td class="colum-processing" >${error.department}</td>
+                                <td class="colum-processing" >${error.category}</td>
+                                <td class="colum-processing" >${error.deviceOptions}</td>
+                                <td class="colum-processing" >${error.location}</td>
+                                <td class="colum-processing" >${error.errorDevice}</td>
+                                <td class="colum-processing" >${error.errorNote}</td>
+                                <td class="colum-processing" >${error.img}</td>
+                                <td class="colum-processing" >${error.errorTime}</td>
+                                <td class="colum-processing" >${error.errorHandleTime}</td>
+                                <td class="colum-processing" >${error.completeTime}</td>
+                                <td class="colum-processing" >${fullNameRequest}</td>
+                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${resultStatus}</td>
+                                <td class="colum-processing">${buttons}</td>
+                            </tr >
+                                `
+            });
+            processingBody.innerHTML = htmls.join('');
+        });
+}
