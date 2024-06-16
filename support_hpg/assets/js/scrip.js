@@ -115,6 +115,7 @@ window.addEventListener('load', function () {
                 showUserName.innerHTML = accountLogin.user;
                 fullName.innerHTML = accountLogin.fullname;
                 logOut.innerHTML = 'Thoát';
+                getError(renderhandleError);
             })
     } else {
         errorTable.style.display = 'none';
@@ -248,12 +249,14 @@ function CreateError(errorDb, callback, callback2) {
 
 
 // Hàm xử lý POST
-
+let count = 0; ///tạo mã số cộng dòn cho requestCode
 function handleCreateError() {
     btnConfirm.onclick = function (event) {
         event.preventDefault(); // Ngăn chặn hành động mặc định của nút
         let date = new Date();
+        let formattedMonth = date.getMonth() < 10 ? '0' + (date.getMonth()+1) : date.getMonth()+1;
         let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+        let requestcode = `${date.getDate()}${formattedMonth}${(date.getFullYear()%100)}${count+1}`
         let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
         let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
         let result = false
@@ -266,6 +269,7 @@ function handleCreateError() {
             && errorInputs[0].value.trim() !== ''
             && errorInputs[1].value.trim() !== ''
             && errorInputs[2].value.trim() !== '') {
+            count++;
             let departmentId = errorInputColums[0].id;
             let errorDb = {
                 department: errorInputColums[0].innerHTML,
@@ -281,6 +285,7 @@ function handleCreateError() {
                 errorUser: showUserName.innerHTML,
                 handleUser: '',
                 departmentId: departmentId,
+                requestCode: requestcode,
                 status: 1
             };
             result = true;
@@ -627,16 +632,14 @@ function handleBtnComplete(error) {
 
 //Lọc thông tin theo từng bộ phận
 // Hàm render theo bộ phận
-
-
 let handledepartmens = departments.forEach(department => {
     department.onclick = function () {
         let departmentIdrender = department.getAttribute('id');
-        getError(errors => renderDepartments(departmentIdrender, errors)); //
+        getError(errors => renderDepartments(errors,departmentIdrender)); //
     };
 });
 
-function renderDepartments(departmentIdrender, errors) {
+function renderDepartments(errors,departmentIdrender) {
 
     fetch(account)
         .then(response => response.json())
@@ -709,32 +712,41 @@ function renderDepartments(departmentIdrender, errors) {
 //-HOME---------------------------------------------------------------
 home.onclick = function (e) {
     e.preventDefault();
-    getError(renderhandleError);
+    getError(errors=>renderhandleError(errors));
 }
 
 // END-HOME---------------------------------------------------------------
 
+let accountAll = fetch(account)
+        .then(response => response.json())
+        .then(accounts => accounts)
+
+        // console.log(accountAll)
+
 // render theo user đăng nhập
-fullName.onclick = function (e) {
-    getError(renderhandleErrorUser)
-}
+// fullName.onclick = function (e) {
+//     getError(renderhandleErrorUser)
+//     console.log(accountLogin)
+// }
+
+
 
 
 function renderhandleErrorUser(errors) {
     fetch(account)
         .then(response => response.json())
         .then(accounts => {
-            let currentUser = showUserName.innerHTML; // user đang đăng nhập
-            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+            // let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+            let currentUser = accountLogin.user; // user đang đăng nhập
 
             let processingBody = document.querySelector('#container .content-processing .processing-body')
             let htmls = "";
             let departmentErrorUser = errors.filter(element => {
-                return element.errorUser === currentUser
+                return element.errorUser === accountLogin.user
             })
 
             htmls = departmentErrorUser.map((error, index) => {
-                let fullNameRequest = currentAccount.fullname;
+                let fullNameRequest = accountLogin.fullname;
 
                 let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
                 let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
@@ -747,12 +759,12 @@ function renderhandleErrorUser(errors) {
                 let statusComplete = error.status === 2 ? 'inline-block' : 'none';
                 let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
 
-                if (currentAccount) {
-                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                if (accountLogin) {
+                    if (accountLogin.permission === 'administrator' || error.errorUser === currentUser) {
                         buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
                         buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
                     }
-                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                    if (accountLogin.permission === 'administrator' || accountLogin.department === error.departmentId) {
                         buttons += `<div style="display: inline-block">
                         <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
                         <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
@@ -784,4 +796,80 @@ function renderhandleErrorUser(errors) {
             });
             processingBody.innerHTML = htmls.join('');
         });
+}
+
+/********************************************
+
+*/
+// render theo user
+fullName.onclick = function (e) {
+    getError(errors =>renderhandleErrorUser(errors,accountLogin))
+}
+
+
+
+// tạo function render tổng
+
+function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
+    let processingBody = document.querySelector('#container .content-processing .processing-body')
+    let htmls = "";
+                let fullNameRequest = accountLogin.fullname;
+
+                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+         
+    // render các request của user đang login
+        if(departmentIdAndUser === accountLogin){
+            let currentUser = accountLogin.user;
+            let departmentErrorUser = errors.filter(element => {
+                return element.errorUser === currentUser
+            }) 
+            if (accountLogin) {
+                    if (accountLogin.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                    }
+                    if (accountLogin.permission === 'administrator' || accountLogin.department === error.departmentId) {
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
+                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                        </div>`
+                    }
+                }
+            htmls = departmentErrorUser.map((error, index) => {
+               
+                let buttons = '';
+                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
+                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
+                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+
+               
+
+                return `
+                            <tr class="request-error-${error.id}">
+                                <td class="colum-processing" >${index + 1}</td>
+                                <td class="colum-processing" >${error.department}</td>
+                                <td class="colum-processing" >${error.category}</td>
+                                <td class="colum-processing" >${error.deviceOptions}</td>
+                                <td class="colum-processing" >${error.location}</td>
+                                <td class="colum-processing" >${error.errorDevice}</td>
+                                <td class="colum-processing" >${error.errorNote}</td>
+                                <td class="colum-processing" >${error.img}</td>
+                                <td class="colum-processing" >${error.errorTime}</td>
+                                <td class="colum-processing" >${error.errorHandleTime}</td>
+                                <td class="colum-processing" >${error.completeTime}</td>
+                                <td class="colum-processing" >${fullNameRequest}</td>
+                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${resultStatus}</td>
+                                <td class="colum-processing">${buttons}</td>
+                            </tr >
+                                `
+            });
+            processingBody.innerHTML = htmls.join('');
+       }
 }
