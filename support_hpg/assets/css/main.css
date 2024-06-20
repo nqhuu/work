@@ -117,6 +117,10 @@
 
 }
 
+.active {
+    display: block;
+}
+
 #header .user-name-notification-logout {
     /* position: fixed; */
 

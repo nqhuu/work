@@ -5,7 +5,7 @@ let account = 'http://localhost:3000/account';
 let categoty = 'http://localhost:3000/category';
 let handleErrors = 'http://localhost:3000/handleError'
 let countCodeRequest = 'http://localhost:3000/countCodeRequest'
-let notifications = 'http://localhost:3000/notifications'
+// let notifications = 'http://localhost:3000/notifications'
 
 let home = document.querySelector('#header .header__logo');
 let loginBtn = document.querySelector('#login .login');
@@ -22,6 +22,8 @@ let errorTable = document.querySelector('#container .content .content-error');
 let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
 let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'));
 let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
+let notifications = document.querySelector('#header .notification-block')
+let notificationsIcon = document.querySelector('#header .notification-icon')
 let date = new Date();
 // Hàm khởi động phần mềm
 function start() {
@@ -946,11 +948,36 @@ async function renderNotifications(account) { // acccount được lấy sau khi
     let userId = account.id;
     let department = account.department;
     let permission = account.permission;
-
+    let htmls = [];
     let response = await fetch(handleErrors);
     let dataError = await response.json();
     console.log(dataError);
-    let notifications = dataError.filter(notification => {
-        return notification.errorUser === userName || notification.departmentId === department
+    let notificationsUser = dataError.filter(notification => {
+        return notification.errorUser === userName;
     })
+    let notificationsDepartment = dataError.filter(notification => {
+        return  notification.departmentId === department && notification.status === 1
+    })
+    let htmlsUser = notificationsUser.map((error,index) => {
+        if(error.status === 2){
+            return `<div>Yêu cầu mã số ${error.requestCode} của bạn đang được xử lý bởi ${error.handleUser}</div`
+        }
+        if(error.status === 3){
+            return `<div>Yêu cầu mã số ${error.requestCode} của bạn đang được xử lý xong bởi ${error.handleUser}</div`
+        }
+    })
+    let htmlsDepartment = notificationsDepartment.map((error,index)=> {
+        return `<div class="notification-item">Bộ phận bạn có yêu cầu xử lý sự cố với mã số là ${error.requestCode}. Yêu cầu được thêm bởi ${error.errorUser}</div>`
+    })
+     htmls = [...htmlsUser,...htmlsDepartment]
+     notifications.innerHTML =htmls.join('')
+     console.log(notifications.innerHTML)
+}
+notificationsIcon.onclick = async function(){
+    if(notifications.style.display = 'block'){
+         notifications.style.display = 'none';
+    }else {
+        notifications.style.display = 'block'
+    }
+   await renderNotifications()
 }
