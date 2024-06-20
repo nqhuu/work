@@ -54,19 +54,6 @@
     z-index: 1;
 }
 
-/* css cho user-name-login */
-/* #header .user-name-login { 
-    background-color: rgb(253, 42, 42);
-    height: 60px;
-    font-size: 20px;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    text-transform: lowercase;
-    z-index: 1;
-} */
-
 
 #header .user-name {
     background-color: rgb(253, 42, 42);
@@ -76,11 +63,16 @@
     justify-content: center;
     align-items: center;
     padding: 0 10px;
+    cursor: pointer;
+    min-width: 200px;
     /* text-transform: lowercase; */
     z-index: 1;
 }
 
 #header .full-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding-top: 10px;
 }
 
@@ -92,11 +84,72 @@
     color: #000;
 }
 
+#header .notification {
+    position: fixed;
+    right: 230px;
+    top: 18px;
+}
 
-#header .user-name {
+#header .notification-icon {
+    cursor: pointer;
+    font-size: 30px;
+    display: inline-block;
+    color: #F0F0F0;
+
+}
+
+#header .quality-noti {
+    position: fixed;
+    color: #ff0000;
+    font-weight: 800;
+    font-size: 20px;
+    top: 5px;
+}
+
+#header .notification-block {
+    position: fixed;
+    width: 400px;
+    background-color: #ffffff;
+    border: 10px;
+    display: none;
+    right: 0px;
+    top: 62px;
+
+}
+
+#header .user-name-notification-logout {
+    /* position: fixed; */
+
+}
+
+#header .notification-block .notification_viewAllBtn,
+#header .notification-block h4,
+#header .quality-noti {
+    display: inline-block;
+}
+
+#header .user-name-notification-logout {}
+
+#header .notification-block_header {
+    padding: 10px;
+}
+
+
+#header .notification-block .notification_viewAllBtn {
+    float: right;
+    border: 10px;
+    background-color: #fff;
     cursor: pointer;
 }
 
+#header .notification-item {
+    padding: 3px 10px;
+}
+
+#header .notification-item:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 
 #header .header__login:hover {
@@ -352,12 +405,12 @@
 }
 
 .content .content-processing .colum:nth-child(1) {
-    width: 2%;
+    width: 6%;
 }
 
 .content .content-processing .colum:nth-child(2),
 .content .content-processing .colum:nth-child(3) {
-    width: 5%;
+    width: 6%;
 }
 
 .content .content-processing .colum:nth-child(4),
@@ -378,7 +431,8 @@
 .content .content-processing .colum:nth-child(11),
 .content .content-processing .colum:nth-child(12),
 .content .content-processing .colum:nth-child(13),
-.content .content-processing .colum:nth-child(14),
-.content .content-processing .colum:nth-child(15),
-.content .content-processing .colum:nth-child(16),
-.content .content-processing .colum:nth-child(17) {}
+.content .content-processing .colum:nth-child(14) {}
+
+.content .content-processing .colum:nth-child(15) {
+    width: 180px;
+}

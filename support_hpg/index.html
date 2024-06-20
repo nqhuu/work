@@ -16,12 +16,33 @@
 <body>
     <div id="header">
         <img src="./assets/img/logo/logo.png" alt="" class="header__logo">
+        <div>
+            <div class="notification ">
+                <div class="notification-icon ti-bell"></div>
+                <p class="quality-noti">1</p>
+            </div>
+            <ul class="notification-block">
+                <div class="notification-block_header">
+                    <h4>Thông Báo</h4>
+                    <button class="notification_viewAllBtn">Đánh dấu đã đọc</button>
+                </div>
+                <div class="notification-item">
+                    <div>name</div>
+                    <div>Nội dung 1</div>
+                    <div>15' trước</div>
+                </div>
+                <div class="notification-item">2 trang</div>
+            </ul>
+        </div>
         <a href="#" class="header__login font-size white text-decoration">Đăng nhập</a>
         <div class="user-name logout" style="display: none;">
-            <p class="user-name-login font-size white text-decoration "></p>
-            <p class="full-name white "></p>
-            <a href="" class="log-out "></a>
+            <div class="user-name-notification-logout">
+                <p class="user-name-login font-size white text-decoration "></p>
+                <p class="full-name white "></p>
+                <a href="" class="log-out "></a>
+            </div>
         </div>
+
     </div>
     <!-- <div id="overlay">
         <iframe src="./login.html" frameborder="0" class="overlay-iframe"></iframe>
@@ -113,7 +134,8 @@
                 <table class="content__table">
                     <thead>
                         <tr class="row">
-                            <td class="colum">STT</td>
+                            <!-- <td class="colum">STT</td> -->
+                            <td class="colum">Mã yêu cầu</td>
                             <td class="colum">B/P xử lý</td>
                             <td class="colum">Hạng mục</td>
                             <td class="colum">Thiết bị/Phần mềm</td>

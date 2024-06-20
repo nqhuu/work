@@ -4,12 +4,14 @@
 let account = 'http://localhost:3000/account';
 let categoty = 'http://localhost:3000/category';
 let handleErrors = 'http://localhost:3000/handleError'
+let countCodeRequest = 'http://localhost:3000/countCodeRequest'
+let notifications = 'http://localhost:3000/notifications'
 
 let home = document.querySelector('#header .header__logo');
 let loginBtn = document.querySelector('#login .login');
 let alertError = document.querySelector('#login .alert');
 let userNameLogin = document.querySelector('#header .user-name');
-let showUserName = document.querySelector('#header .user-name-login');
+let showUserName = document.querySelector('#header .user-name .user-name-login');
 let fullName = document.querySelector('#header .full-name');
 let logOut = document.querySelector('#header .log-out');
 let headerLogin = document.querySelector('#header .header__login');
@@ -20,6 +22,7 @@ let errorTable = document.querySelector('#container .content .content-error');
 let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
 let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'));
 let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
+let date = new Date();
 // Hàm khởi động phần mềm
 function start() {
     getError(renderhandleError);
@@ -29,7 +32,9 @@ function start() {
 
 start();
 
-let accountLogin; // tài khoản đăng nhập
+
+let accountLogin; // tài khoản đăng nhập - đăng nhập hiện tại
+
 
 document.addEventListener('DOMContentLoaded', function () { //đảm vảo gọi xong DOM thì sau đó mới thực hiện các hàm bên trong
     init();
@@ -38,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function () { //đảm vảo gọi
 function init() {
     // handleDepartments();
     errorInput();
+    // renderNotifications();
     // Các hàm khác nếu cần thiết
 }
 
@@ -77,6 +83,8 @@ function handleLogin(accounts) {
                 localStorage.setItem('user', JSON.stringify(userInp)) // lưu vào localstore để thực hiện việt logout đồng thời sử dụng để lưu thông tin đăng nhập khi reload lại trang
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleErrorUser); // sau khi đăng nhập xong thì render lại
+                renderNotifications(accountLogin); //
+                console.log(renderNotifications(accountLogin));
             }
         });
         if (!flag) {
@@ -187,7 +195,8 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
 
                 return `
                                 <tr class="request-error-${error.id}">
-                                    <td class="colum-processing" >${index + 1}</td>
+                                
+                                    <td class="colum-processing" >${error.requestCode}</td>
                                     <td class="colum-processing" >${error.department}</td>
                                     <td class="colum-processing" >${error.category}</td>
                                     <td class="colum-processing" >${error.deviceOptions}</td>
@@ -248,19 +257,66 @@ function CreateError(errorDb, callback, callback2) {
 };
 
 
+async function getCount() {
+    let response = await fetch(countCodeRequest + "/" + "1");
+    let data = await response.json();
+    return data;
+}
+
+async function updateCount(dataUpdate) {
+    let options = {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataUpdate),
+    }
+    let response = await fetch(countCodeRequest + "/" + "1", options)
+    return response.json();
+}
+
+async function checkMonthYear() {
+    let response = await fetch(countCodeRequest + "/" + "1");
+    let data = await response.json();
+    return data.date;
+}
+
 // Hàm xử lý POST
-let count = 0; ///tạo mã số cộng dòn cho requestCode
+
+
 function handleCreateError() {
-    btnConfirm.onclick = function (event) {
+    btnConfirm.onclick = async function (event) {
         event.preventDefault(); // Ngăn chặn hành động mặc định của nút
-        let date = new Date();
-        let formattedMonth = date.getMonth() < 10 ? '0' + (date.getMonth()+1) : date.getMonth()+1;
+        let formattedMonth = String(date.getMonth() + 1).padStart(2, '0'); // sử dụng padStart(2, '0') để tạo giá trị có độ dài là 2, nếu ko đủ 2 thì thêm 0 đăng trước
+        let formatedYear = String(date.getFullYear()).slice(-2); // lấy 2 số cuối của năm
+        let day = String(date.getDate()).padStart(2, '0');
+        let countData = await getCount();
+        let count;
+        let monthYearCheck = await checkMonthYear()
+        let monthCheck = String(monthYearCheck.slice(3, 5));
+
+        let yearCheck = String(monthYearCheck.slice(-2));
+        if (monthCheck !== formattedMonth || yearCheck !== formatedYear) {
+            count = 0;
+        } else {
+            count = countData.count;
+        }
+        console.log(monthCheck);
+        console.log(`${day}-${formattedMonth}-${formatedYear}`);
+
+
+        // let monthYear = `${formattedMonth}${(date.getFullYear() % 100)}`
+        let requestcode = `${day}${formattedMonth}${formatedYear}${String(count + 1).padStart(4, '0')}`
         let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-        let requestcode = `${date.getDate()}${formattedMonth}${(date.getFullYear()%100)}${count+1}`
         let errorInputColums = Array.from(document.querySelectorAll('#container .error-body td'))
         let errorInputs = Array.from(document.querySelectorAll('#container .error-body input'))
         let result = false
         // không nên dùng vòng lặp để tránh bị add dữ liệu nhiều hơn 1 lần cho mỗi 1 click vào btn
+        // vì nếu click vào nhiều lần thì sẽ add dữ liệu nhiều hơn 1 lần
+        // nên phải kiểm tra trước rồi mới add dữ liệu vào
+        // nếu không có dữ liệu thì không add dữ liệu vào
+        // nếu có dữ liệu thì add dữ liệu vào  
+
         if (// && errorInputColums[0] && errorInputColums[1] 
             // && errorInputs[0] && errorInputs[1] 
             // && errorInputs[2] && errorInputs[3] &&
@@ -269,7 +325,12 @@ function handleCreateError() {
             && errorInputs[0].value.trim() !== ''
             && errorInputs[1].value.trim() !== ''
             && errorInputs[2].value.trim() !== '') {
-            count++;
+            // if (requestcode) 
+            let dataUpdate = {
+                count: count + 1,
+                date: `${day}-${formattedMonth}-${formatedYear}`
+            }
+            let countUpdate = await updateCount(dataUpdate);
             let departmentId = errorInputColums[0].id;
             let errorDb = {
                 department: errorInputColums[0].innerHTML,
@@ -395,7 +456,6 @@ function handleModify(handleError) {
 
         // nếu các biến này không phải là giá trị falsy (false 0 , "" (chuỗi rỗng), null, undefined, NaN (Not-a-Number))
         if (department && category && deviceOptions && location && errorDevice) {
-            let date = new Date();
             let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
             let dataUpdate = {
                 department: department,
@@ -484,7 +544,7 @@ function confirmHandleError(id) {
 
 function handleConfirmError(error) {
     let confirmMessage = 'Xác nhận xử lý yêu cầu này'
-    let date = new Date();
+
     let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
     let btnCancel = document.querySelector('#container .processing-body .btnCancel'); // nút xóa
@@ -596,7 +656,6 @@ function handleBtnComplete(error) {
                     userRequest = element
                 }
             })
-            let date = new Date();
             let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             let dataUpdate = {
                 completeTime: errorTimeClick,
@@ -635,11 +694,11 @@ function handleBtnComplete(error) {
 let handledepartmens = departments.forEach(department => {
     department.onclick = function () {
         let departmentIdrender = department.getAttribute('id');
-        getError(errors => renderDepartments(errors,departmentIdrender)); //
+        getError(errors => renderDepartments(errors, departmentIdrender)); //
     };
 });
 
-function renderDepartments(errors,departmentIdrender) {
+function renderDepartments(errors, departmentIdrender) {
 
     fetch(account)
         .then(response => response.json())
@@ -682,10 +741,11 @@ function renderDepartments(errors,departmentIdrender) {
                         </div>`
                     }
                 }
-
+                {/* <td class="colum-processing" >${index + 1}</td> */ }
                 return `
                             <tr class="request-error-${error.id}">
-                                <td class="colum-processing" >${index + 1}</td>
+                            
+                                <td class="colum-processing" >${error.requestCode}</td>
                                 <td class="colum-processing" >${error.department}</td>
                                 <td class="colum-processing" >${error.category}</td>
                                 <td class="colum-processing" >${error.deviceOptions}</td>
@@ -712,16 +772,16 @@ function renderDepartments(errors,departmentIdrender) {
 //-HOME---------------------------------------------------------------
 home.onclick = function (e) {
     e.preventDefault();
-    getError(errors=>renderhandleError(errors));
+    getError(errors => renderhandleError(errors));
 }
 
 // END-HOME---------------------------------------------------------------
 
 let accountAll = fetch(account)
-        .then(response => response.json())
-        .then(accounts => accounts)
+    .then(response => response.json())
+    .then(accounts => accounts)
 
-        // console.log(accountAll)
+// console.log(accountAll)
 
 // render theo user đăng nhập
 // fullName.onclick = function (e) {
@@ -776,7 +836,8 @@ function renderhandleErrorUser(errors) {
 
                 return `
                             <tr class="request-error-${error.id}">
-                                <td class="colum-processing" >${index + 1}</td>
+                            
+                                <td class="colum-processing" >${error.requestCode}</td>
                                 <td class="colum-processing" >${error.department}</td>
                                 <td class="colum-processing" >${error.category}</td>
                                 <td class="colum-processing" >${error.deviceOptions}</td>
@@ -803,7 +864,7 @@ function renderhandleErrorUser(errors) {
 */
 // render theo user
 fullName.onclick = function (e) {
-    getError(errors =>renderhandleErrorUser(errors,accountLogin))
+    getError(errors => renderhandleErrorUser(errors, accountLogin))
 }
 
 
@@ -813,46 +874,48 @@ fullName.onclick = function (e) {
 function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
     let processingBody = document.querySelector('#container .content-processing .processing-body')
     let htmls = "";
-                let fullNameRequest = accountLogin.fullname;
+    let fullNameRequest = accountLogin.fullname;
 
-                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
-         
+
+
     // render các request của user đang login
-        if(departmentIdAndUser === accountLogin){
-            let currentUser = accountLogin.user;
-            let departmentErrorUser = errors.filter(element => {
-                return element.errorUser === currentUser
-            }) 
+    if (departmentIdAndUser === accountLogin) {
+        let currentUser = accountLogin.user;
+        let departmentErrorUser = errors.filter(element => {
+            return element.errorUser === currentUser
+        })
+
+        htmls = departmentErrorUser.map((error, index) => {
+            let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+            let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+            let buttons = '';
+            let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+            let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+            let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
+            let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
+            let statusComplete = error.status === 2 ? 'inline-block' : 'none';
+            let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+
+
             if (accountLogin) {
-                    if (accountLogin.permission === 'administrator' || error.errorUser === currentUser) {
-                        buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
-                        buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
-                    }
-                    if (accountLogin.permission === 'administrator' || accountLogin.department === error.departmentId) {
-                        buttons += `<div style="display: inline-block">
-                        <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
-                        <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
-                        buttons += `<div>
-                        <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
-                        </div>`
-                    }
+                if (accountLogin.permission === 'administrator' || error.errorUser === currentUser) {
+                    buttons += `<button class="btnModify" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                    buttons += `<button class="btnCancel" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
                 }
-            htmls = departmentErrorUser.map((error, index) => {
-               
-                let buttons = '';
-                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
-                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+                if (accountLogin.permission === 'administrator' || accountLogin.department === error.departmentId) {
+                    buttons += `<div style="display: inline-block">
+                            <button class="btnHandle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button>
+                            <button class="btnLeave" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                    buttons += `<div>
+                            <button class="btnComplete" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check" style = "display: ${statusIconComplete}"></p>
+                            </div>`
+                }
+            }
 
-               
-
-                return `
+            return `
                             <tr class="request-error-${error.id}">
-                                <td class="colum-processing" >${index + 1}</td>
+                            
+                                <td class="colum-processing" >${error.requestCode}</td>
                                 <td class="colum-processing" >${error.department}</td>
                                 <td class="colum-processing" >${error.category}</td>
                                 <td class="colum-processing" >${error.deviceOptions}</td>
@@ -869,7 +932,25 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
                                 <td class="colum-processing">${buttons}</td>
                             </tr >
                                 `
-            });
-            processingBody.innerHTML = htmls.join('');
-       }
+        });
+        processingBody.innerHTML = htmls.join('');
+    }
+}
+
+
+// tạo notifications cho user đăng nhập
+
+async function renderNotifications(account) { // acccount được lấy sau khi login - để hàm renderNotifications bên trong hàm loginMain
+    let userName = account.user;
+    let fullName = account.fullname;
+    let userId = account.id;
+    let department = account.department;
+    let permission = account.permission;
+
+    let response = await fetch(handleErrors);
+    let dataError = await response.json();
+    console.log(dataError);
+    let notifications = dataError.filter(notification => {
+        return notification.errorUser === userName || notification.departmentId === department
+    })
 }
