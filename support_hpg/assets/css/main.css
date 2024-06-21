@@ -109,11 +109,13 @@
 #header .notification-block {
     position: fixed;
     width: 400px;
-    background-color: #ffffff;
     border: 10px;
     display: none;
     right: 0px;
     top: 62px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #e3f3ff;
 
 }
 
@@ -143,27 +145,28 @@
 #header .notification-block .notification_viewAllBtn {
     float: right;
     border: 10px;
-    background-color: #fff;
+    background-color: #e3f3ff;
     cursor: pointer;
 }
 
 #header .notification-item {
     padding: 3px 10px;
-
 }
 
 #header .notification-item .noti-child:hover {
-    background-color: #eeeeee;
+    background-color: #edffdf;
     cursor: pointer;
     border: 5px;
+    /* opacity: 0.8; */
 }
 
 #header .notification-item .noti-child {
-    background-color: #f5fcfd;
+    background-color: #fdfaf5;
     cursor: pointer;
     padding: 5px 0px 5px 5px;
     margin: 5px 0px;
     line-height: 1.5;
+    border-radius: 10px;
 }
 
 #header .notification-item .noti-child h5 {
