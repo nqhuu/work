@@ -209,14 +209,13 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
 
                 let resultStatus = getStatusText(error.status)
 
-
                 let buttons = '';
-                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
-                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+                let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+                let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
 
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
@@ -771,12 +770,12 @@ function renderDepartments(errors, departmentIdrender) {
                 let resultStatus = getStatusText(error.status)
 
                 let buttons = '';
-                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
-                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+                let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+                let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
 
                 if (currentAccount) {
                     if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
@@ -869,12 +868,12 @@ function renderhandleErrorUser(errors) {
 
 
                 let buttons = '';
-                let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-                let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-                let statusComplete = error.status === 2 ? 'inline-block' : 'none';
-                let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+                let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+                let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
 
                 if (accountLogin) {
                     if (accountLogin.permission === 'administrator' || error.errorUser === currentUser) {
@@ -950,12 +949,12 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
             let resultStatus = getStatusText(error.status)
 
             let buttons = '';
-            let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-            let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-            let statusHandle = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
-            let statusLeave = error.status === 1 ? 'none' : error.status === 2 ? 'inline-block' : error.status === 3 ? 'none' : 'none';
-            let statusComplete = error.status === 2 ? 'inline-block' : 'none';
-            let statusIconComplete = error.status === 3 ? 'inline-block' : 'none';
+            let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+            let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+            let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+            let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+            let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+            let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
 
 
             if (accountLogin) {
