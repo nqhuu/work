@@ -132,10 +132,11 @@
     display: inline-block;
 }
 
+
 #header .user-name-notification-logout {}
 
 #header .notification-block_header {
-    padding: 10px;
+    padding: 15px;
 }
 
 
@@ -148,12 +149,27 @@
 
 #header .notification-item {
     padding: 3px 10px;
+
 }
 
-#header .notification-item:hover {
+#header .notification-item .noti-child:hover {
     background-color: #eeeeee;
     cursor: pointer;
+    border: 5px;
 }
+
+#header .notification-item .noti-child {
+    background-color: #f5fcfd;
+    cursor: pointer;
+    padding: 5px 0px 5px 5px;
+    margin: 5px 0px;
+    line-height: 1.5;
+}
+
+#header .notification-item .noti-child h5 {
+    display: inline-block;
+}
+
 
 
 #header .header__login:hover {

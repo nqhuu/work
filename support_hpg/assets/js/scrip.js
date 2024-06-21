@@ -24,8 +24,12 @@ let departments = Array.from(document.querySelectorAll('#container .sidebar__hea
 let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
 let notifications = document.querySelector('#header .notification-block')
 let notificationsIcon = document.querySelector('#header .notification-icon')
+let notificationItem = document.querySelector('#header .notification-block .notification-item')
+let notiQuantity = document.querySelector('#header .notification .quality-noti');
+let notificationChild = document.querySelectorAll('#header .notification-item .noti-child')
 let date = new Date();
 // Hàm khởi động phần mềm
+
 function start() {
     getError(renderhandleError);
     loginMain(handleLogin);
@@ -38,6 +42,22 @@ start();
 let accountLogin; // tài khoản đăng nhập - đăng nhập hiện tại
 
 
+function getStatusText(status) {
+    switch (status) {
+        case 1:
+        case 11:
+            return "Chờ";
+        case 2:
+        case 22:
+            return "Đang xử lý";
+        case 3:
+        case 33:
+            return "Hoàn thành";
+        default:
+            return "Unknown status";
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () { //đảm vảo gọi xong DOM thì sau đó mới thực hiện các hàm bên trong
     init();
 });
@@ -45,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function () { //đảm vảo gọi
 function init() {
     // handleDepartments();
     errorInput();
+    // notificationItemQuantity()
     // renderNotifications();
     // Các hàm khác nếu cần thiết
 }
@@ -56,11 +77,10 @@ function loginMain(callback) {
         .then(reponse => reponse.json())
         .then(callback)
     // .then(() => {
-    //     getError(renderhandleErrorUser);
+    //     getError(renderNotifications());
     // })
 }
 // handleLogin - xử lý đăng nhập
-
 function handleLogin(accounts) {
     loginBtn.onclick = function (e) {
         e.preventDefault();
@@ -85,8 +105,8 @@ function handleLogin(accounts) {
                 localStorage.setItem('user', JSON.stringify(userInp)) // lưu vào localstore để thực hiện việt logout đồng thời sử dụng để lưu thông tin đăng nhập khi reload lại trang
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleErrorUser); // sau khi đăng nhập xong thì render lại
-                renderNotifications(accountLogin); //
-                console.log(renderNotifications(accountLogin));
+                // renderNotifications(accountLogin); 
+                getError(renderNotifications);
             }
         });
         if (!flag) {
@@ -103,8 +123,8 @@ function handleLogin(accounts) {
 logOut.onclick = function () {
     localStorage.removeItem('user');
     errorTable.style.display = 'none';
-    login.style.display = 'block'
-    userNameLogin.style.display = 'none'
+    login.style.display = 'block';
+    userNameLogin.style.display = 'none';
 }
 
 
@@ -118,19 +138,20 @@ window.addEventListener('load', function () {
             .then(acc => {
                 accountLogin = acc.find(element => `"${element.user}"` === user)
                 errorTable.style.display = 'block';
-                login.style.display = 'none'
-                headerLogin.style.display = 'none'
-                userNameLogin.style.display = 'block'
-                showUserName.style.display = 'none'
+                login.style.display = 'none';
+                headerLogin.style.display = 'none';
+                userNameLogin.style.display = 'block';
+                showUserName.style.display = 'none';
                 showUserName.innerHTML = accountLogin.user;
                 fullName.innerHTML = accountLogin.fullname;
                 logOut.innerHTML = 'Thoát';
                 getError(renderhandleError);
+                getError(renderNotifications);
             })
     } else {
         errorTable.style.display = 'none';
         // login.style.display = 'block'
-        userNameLogin.style.display = 'none'
+        userNameLogin.style.display = 'none';
     }
 });
 
@@ -152,10 +173,25 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
             let currentUser = showUserName.innerHTML; // user đang đăng nhập
             let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
 
-            let processingBody = document.querySelector('#container .content-processing .processing-body')
+            let processingBody = document.querySelector('#container .content-processing .processing-body');
+            function getStatusText(status) {
+                switch (status) {
+                    case 1:
+                    case 11:
+                        return "Chờ";
+                    case 2:
+                    case 22:
+                        return "Đang xử lý";
+                    case 3:
+                    case 33:
+                        return "Hoàn thành";
+                    default:
+                        return "Unknown status";
+                }
+            }
             let htmls = "";
             htmls = errors.map((error, index) => {
-                let accountRequest = accounts.find(acc => acc.user === error.errorUser)
+                let accountRequest = accounts.find(acc => acc.user === error.errorUser);
                 let fullNameRequest = accountRequest.fullname;
 
                 /** hiển thị tên người xử lý lỗi -- chưa xong
@@ -169,8 +205,10 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
                 //     accountHandle = '';
                 // }
                 */
-                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+                // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"];
+
+                let resultStatus = getStatusText(error.status)
+
 
                 let buttons = '';
                 let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
@@ -197,7 +235,6 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
 
                 return `
                                 <tr class="request-error-${error.id}">
-                                
                                     <td class="colum-processing" >${error.requestCode}</td>
                                     <td class="colum-processing" >${error.department}</td>
                                     <td class="colum-processing" >${error.category}</td>
@@ -232,8 +269,8 @@ function errorInput() {
         categorys.forEach(category => {
             category.onclick = function () {
                 let categoryItem = category.innerHTML;
-                let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)')
-                let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)')
+                let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)');
+                let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)');
                 columDepartment.innerHTML = department.innerHTML;
                 columDepartment.setAttribute('id', `${departmentId}`);
                 columCategory.innerHTML = categoryItem;
@@ -294,7 +331,7 @@ function handleCreateError() {
         let day = String(date.getDate()).padStart(2, '0');
         let countData = await getCount();
         let count;
-        let monthYearCheck = await checkMonthYear()
+        let monthYearCheck = await checkMonthYear();
         let monthCheck = String(monthYearCheck.slice(3, 5));
 
         let yearCheck = String(monthYearCheck.slice(-2));
@@ -303,9 +340,6 @@ function handleCreateError() {
         } else {
             count = countData.count;
         }
-        console.log(monthCheck);
-        console.log(`${day}-${formattedMonth}-${formatedYear}`);
-
 
         // let monthYear = `${formattedMonth}${(date.getFullYear() % 100)}`
         let requestcode = `${day}${formattedMonth}${formatedYear}${String(count + 1).padStart(4, '0')}`
@@ -349,13 +383,16 @@ function handleCreateError() {
                 handleUser: '',
                 departmentId: departmentId,
                 requestCode: requestcode,
-                status: 1
+                status: 1,
+                notification: 0
             };
             result = true;
             CreateError(errorDb, () => {
                 removeCreateError()
             }, () => {
-                getError(renderhandleError)
+                getError(renderhandleErrorUser)
+                getError(renderNotifications);
+
             });
         };
         if (!result) {
@@ -482,7 +519,9 @@ function handleModify(handleError) {
                     .then(course => course.json())
                     .then(function () {
                         removeCreateError()
-                        getError(renderhandleError);
+                        getError(renderhandleErrorUser);
+                        getError(renderNotifications);
+
                     })
                     .then(function () {
                         save.style.display = 'none';
@@ -576,7 +615,9 @@ function handleConfirmError(error) {
             .then(response => response.json())
             .then(function () {
                 // removeCreateError()
-                getError(renderhandleError);
+                getError(renderhandleErrorUser);
+                getError(renderNotifications);
+
             })
     }
 }
@@ -623,6 +664,7 @@ function handleLeaveError(error) {
                         .then(function () {
                             // removeCreateError()
                             getError(renderhandleError);
+                            getError(renderNotifications);
                         })
                 }
             } else {
@@ -677,6 +719,7 @@ function handleBtnComplete(error) {
                         .then(function () {
                             // removeCreateError()
                             getError(renderhandleError);
+                            getError(renderNotifications);
                         })
                 }
             } else {
@@ -709,6 +752,7 @@ function renderDepartments(errors, departmentIdrender) {
             let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
 
             let processingBody = document.querySelector('#container .content-processing .processing-body')
+
             let htmls = "";
             let departmentErrorUser = errors.filter(element => {
                 return element.departmentId === departmentIdrender
@@ -718,8 +762,13 @@ function renderDepartments(errors, departmentIdrender) {
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser)
                 let fullNameRequest = accountRequest.fullname;
 
-                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+                // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                // let resultStatus = statusAll.find((istatusItem, index) => {
+                //     if (error.status == index + 1 || ((error.status) + error.status * 10 + error.status) == (index + 1) + (error.status * 10 + error.status)) {
+                //         return istatusItem;
+                //     }
+                // })
+                let resultStatus = getStatusText(error.status)
 
                 let buttons = '';
                 let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
@@ -810,8 +859,14 @@ function renderhandleErrorUser(errors) {
             htmls = departmentErrorUser.map((error, index) => {
                 let fullNameRequest = accountLogin.fullname;
 
-                let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-                let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+                // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+                // let resultStatus = statusAll.find((istatusItem, index) => {
+                //     if (error.status == index + 1 || ((error.status) + error.status * 10 + error.status) == (index + 1) + (error.status * 10 + error.status)) {
+                //         return istatusItem;
+                //     }
+                // })
+                let resultStatus = getStatusText(error.status)
+
 
                 let buttons = '';
                 let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
@@ -877,9 +932,6 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
     let processingBody = document.querySelector('#container .content-processing .processing-body')
     let htmls = "";
     let fullNameRequest = accountLogin.fullname;
-
-
-
     // render các request của user đang login
     if (departmentIdAndUser === accountLogin) {
         let currentUser = accountLogin.user;
@@ -888,8 +940,15 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
         })
 
         htmls = departmentErrorUser.map((error, index) => {
-            let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-            let resultStatus = statusAll.find((istatusItem, index) => error.status == index + 1)
+            // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
+            // let resultStatus = statusAll.find((istatusItem, index) => {
+            //     if (error.status == index + 1 || ((error.status) + error.status * 10 + error.status) == (index + 1) + (error.status * 10 + error.status)) {
+            //         return istatusItem;
+            //     }
+            // })
+
+            let resultStatus = getStatusText(error.status)
+
             let buttons = '';
             let statusModify = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
             let statusCancel = error.status === 1 ? 'inline-block' : error.status === 2 ? 'none' : error.status === 3 ? 'none' : 'none';
@@ -934,7 +993,7 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
                                 <td class="colum-processing">${buttons}</td>
                             </tr >
                                 `
-        });
+        }).reverse();
         processingBody.innerHTML = htmls.join('');
     }
 }
@@ -942,42 +1001,124 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
 
 // tạo notifications cho user đăng nhập
 
-async function renderNotifications(account) { // acccount được lấy sau khi login - để hàm renderNotifications bên trong hàm loginMain
-    let userName = account.user;
-    let fullName = account.fullname;
-    let userId = account.id;
-    let department = account.department;
-    let permission = account.permission;
+async function renderNotifications() { // acccount được lấy sau khi login - để hàm renderNotifications bên trong hàm loginMain
+    let loginName = showUserName.innerHTML
+    // console.log(loginName);
+    let responsAccounts = await fetch(account);
+    let dataAccounts = await responsAccounts.json();
+    let accountLogin = dataAccounts.find(account => {
+        return account.user === loginName;
+    })
+    let userName = accountLogin.user;
+    let fullName = accountLogin.fullname;
+    let userId = accountLogin.id;
+    let department = accountLogin.department;
+    let permission = accountLogin.permission;
     let htmls = [];
     let response = await fetch(handleErrors);
     let dataError = await response.json();
-    console.log(dataError);
     let notificationsUser = dataError.filter(notification => {
-        return notification.errorUser === userName;
+        return notification.errorUser == userName;
     })
+    // request được bộ phận khác yêu cầu
     let notificationsDepartment = dataError.filter(notification => {
-        return  notification.departmentId === department && notification.status === 1
+        return notification.departmentId === department && (notification.status == 1 || notification.status == 11)
     })
-    let htmlsUser = notificationsUser.map((error,index) => {
-        if(error.status === 2){
-            return `<div>Yêu cầu mã số ${error.requestCode} của bạn đang được xử lý bởi ${error.handleUser}</div`
+    // let htmlsUser = [];
+
+    // request của user đăng nhập đã được xử lý
+    let htmlsUser = notificationsUser.map((error, index) => {
+        if (error.status == 2) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.errorHandleTime}</span></div></div>`;
+            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+        } else if (error.status == 3) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.completeTime}</span></div></div>`
+            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
         }
-        if(error.status === 3){
-            return `<div>Yêu cầu mã số ${error.requestCode} của bạn đang được xử lý xong bởi ${error.handleUser}</div`
+    })
+
+    let htmlsUserHidden = notificationsUser.map((error, index) => {
+        if (error.status == 22) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.errorHandleTime}</span></div></div>`;
+            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+        } else if (error.status == 33) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.completeTime}</span></div></div>`;
+            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
         }
     })
-    let htmlsDepartment = notificationsDepartment.map((error,index)=> {
-        return `<div class="notification-item">Bộ phận bạn có yêu cầu xử lý sự cố với mã số là ${error.requestCode}. Yêu cầu được thêm bởi ${error.errorUser}</div>`
+
+
+    let htmlsDepartment = notificationsDepartment.map((error, index) => {
+        if (error.status == 1) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
+        }
     })
-     htmls = [...htmlsUser,...htmlsDepartment]
-     notifications.innerHTML =htmls.join('')
-     console.log(notifications.innerHTML)
-}
-notificationsIcon.onclick = async function(){
-    if(notifications.style.display = 'block'){
-         notifications.style.display = 'none';
-    }else {
-        notifications.style.display = 'block'
+
+    let htmlsDepartmentHidden = notificationsDepartment.map((error, index) => {
+        if (error.status == 11) {
+            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
+        }
+    })
+
+    htmls = [...htmlsUser, ...htmlsUserHidden, ...htmlsDepartment, ...htmlsDepartmentHidden].filter(html => html !== undefined);
+    htmlsQuantity = [...htmlsUser, ...htmlsDepartment].filter(html => html !== undefined);
+    // console.log(htmls);
+    let notificationsQuantity = htmlsQuantity.length;
+    notificationItem.innerHTML = htmls.join('')
+    if (notificationsQuantity) {
+        notiQuantity.innerHTML = notificationsQuantity;
+    } else {
+        notiQuantity.innerHTML = '';
     }
-   await renderNotifications()
+    // console.log(notificationItem.innerHTML);
 }
+
+
+notificationsIcon.onclick = function () {
+    if (notifications.style.display === 'block') {
+        notifications.style.display = 'none';
+        getError(() => renderNotifications());
+
+    } else {
+        notifications.style.display = 'block'
+        getError(() => renderNotifications());
+    }
+}
+
+// click vaof notifications thì render request sau trừ bớt số lượng thông báo
+async function notificationItemQuantity(id) {
+    let response = await fetch(handleErrors + "/" + id);
+    let data = await response.json();
+    let notificationChildItem = document.querySelector(`#header .notification-item .id-${id}`)
+    let statusUpdate;
+
+    if (data.status == 1) {
+        statusUpdate = 11;
+    };
+    if (data.status == 2) {
+        statusUpdate = 22;
+    };
+    if (data.status == 3) {
+        statusUpdate = 33;
+    };
+    let dataUpdate = {
+        status: statusUpdate
+    }
+    console.log(dataUpdate);
+    let options = {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataUpdate), // body data type must match "Content-Type" header
+    }
+    await fetch(handleErrors + '/' + id, options)
+        .then(course => course.json())
+        .then(() => {
+            notificationChildItem.style.backgroundColor = '#fff'
+            getError(() => renderNotifications());
+        })
+}
+
+
+
