@@ -22,11 +22,14 @@ let errorTable = document.querySelector('#container .content .content-error');
 let sidebars = Array.from(document.querySelectorAll('#container .sidebar'));
 let departments = Array.from(document.querySelectorAll('#container .sidebar__heading'));
 let btnConfirm = document.querySelector('#container .btn-error .btn-confirm');
-let notifications = document.querySelector('#header .notification-block')
-let notificationsIcon = document.querySelector('#header .notification-icon')
-let notificationItem = document.querySelector('#header .notification-block .notification-item')
-let notiQuantity = document.querySelector('#header .notification .quality-noti');
-let notificationChild = document.querySelectorAll('#header .notification-item .noti-child')
+let notification = document.querySelector('#header .notification');
+let notifications = document.querySelector('#header .notification-block');
+let notificationsIcon = document.querySelector('#header .notification-icon');
+let notificationItem = document.querySelector('#header .notification-block .notification-item');
+let notiQuanlity = document.querySelector('#header .notification .quality-noti');
+let notificationChild = document.querySelectorAll('#header .notification-item .noti-child');
+let searchInput = document.querySelector('#container .search');
+let searchBtn = document.querySelector('#container .search-btn');
 let date = new Date();
 // Hàm khởi động phần mềm
 
@@ -103,6 +106,7 @@ function handleLogin(accounts) {
                 flag = true;
                 accountLogin = account;
                 localStorage.setItem('user', JSON.stringify(userInp)) // lưu vào localstore để thực hiện việt logout đồng thời sử dụng để lưu thông tin đăng nhập khi reload lại trang
+                notification.style.display = 'block'
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleErrorUser); // sau khi đăng nhập xong thì render lại
                 // renderNotifications(accountLogin); 
@@ -142,6 +146,7 @@ window.addEventListener('load', function () {
                 headerLogin.style.display = 'none';
                 userNameLogin.style.display = 'block';
                 showUserName.style.display = 'none';
+                notification.style.display = 'block';
                 showUserName.innerHTML = accountLogin.user;
                 fullName.innerHTML = accountLogin.fullname;
                 logOut.innerHTML = 'Thoát';
@@ -267,7 +272,8 @@ function errorInput() {
         let categorys = Array.from(sidebar.querySelectorAll('.sidebar__menu__list'));
         categorys.forEach(category => {
             category.onclick = function () {
-                let categoryItem = category.innerHTML;
+                let categoryItem = category.querySelector('.text-decoration').innerHTML;
+                // let categoryItem = category.innerHTML;
                 let columDepartment = document.querySelector('#container .error-body .colum:nth-child(1)');
                 let columCategory = document.querySelector('#container .error-body .colum:nth-child(2)');
                 columDepartment.innerHTML = department.innerHTML;
@@ -1018,84 +1024,157 @@ async function renderNotifications() { // acccount được lấy sau khi login 
     let htmls = [];
     let response = await fetch(handleErrors);
     let dataError = await response.json();
-    let notificationsUser = dataError.sort((a,b)=> {
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////xử lý render notificationg mới lên trên cùng//////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
+    let notificationsUser = dataError.slice().sort((a, b) => {
+        return b.notification - a.notification;
     }).filter(notification => {
         return notification.errorUser == userName;
     })
     // request được bộ phận khác yêu cầu
-    let notificationsDepartment = dataError.filter(notification => {
+    let notificationsDepartment = dataError.slice().sort((a, b) => {
+        return b.notification - a.notification;
+    }).filter(notification => {
         return notification.departmentId === department && (notification.status == 1 || notification.status == 11)
     })
-    // let htmlsUser = [];
-
     // request của user đăng nhập đã được xử lý
     let htmlsUser = notificationsUser.map((error, index) => {
         if (error.status == 2) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
-            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         } else if (error.status == 3) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`
-            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`
         }
     })
 
     let htmlsUserHidden = notificationsUser.map((error, index) => {
         if (error.status == 22) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
-            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         } else if (error.status == 33) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
-            // htmlsUser.push(`<div class="noti-child" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn</div>`)
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         }
     })
 
 
     let htmlsDepartment = notificationsDepartment.map((error, index) => {
         if (error.status == 1) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.notification}</span></div></div>`
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.notification}</span></div></div>`
         }
     })
 
     let htmlsDepartmentHidden = notificationsDepartment.map((error, index) => {
         if (error.status == 11) {
-            return `<div class="noti-child id-${error.id}" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
         }
     })
 
     htmls = [...htmlsUser, ...htmlsUserHidden, ...htmlsDepartment, ...htmlsDepartmentHidden].filter(html => html !== undefined);
     htmlsQuantity = [...htmlsUser, ...htmlsDepartment].filter(html => html !== undefined);
-    // console.log(htmls);
     let notificationsQuantity = htmlsQuantity.length;
     notificationItem.innerHTML = htmls.join('')
     if (notificationsQuantity) {
-        notiQuantity.innerHTML = notificationsQuantity;
+        notiQuanlity.innerHTML = notificationsQuantity;
     } else {
-        notiQuantity.innerHTML = '';
+        notiQuanlity.innerHTML = '';
     }
     // console.log(notificationItem.innerHTML);
 }
 
 
+
 notificationsIcon.onclick = function () {
     if (notifications.style.display === 'block') {
         notifications.style.display = 'none';
-        getError(() => renderNotifications());
-
+        // getError(() => renderNotifications());
     } else {
         notifications.style.display = 'block'
         getError(() => renderNotifications());
     }
 }
 
-// click vaof notifications thì render request sau trừ bớt số lượng thông báo
+
+//render đến request được click từ notification
+async function renderhandleErrorNoti(errors, idError) { // errors chính là data của hàm getError
+
+    fetch(account)
+        .then(response => response.json())
+        .then(accounts => {
+            let currentUser = showUserName.innerHTML; // user đang đăng nhập
+            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+            let processingBody = document.querySelector('#container .content-processing .processing-body');
+            function getStatusText(status) {
+                switch (status) {
+                    case 1:
+                    case 11:
+                        return "Chờ";
+                    case 2:
+                    case 22:
+                        return "Đang xử lý";
+                    case 3:
+                    case 33:
+                        return "Hoàn thành";
+                    default:
+                        return "Unknown status";
+                }
+            }
+
+            let currenError = [errors.find(err => err.id === idError)]
+            console.log(currenError);
+            let htmls = "";
+            htmls = currenError.map((error, index) => { //sử dụng reverse() đẻ đảo lại vị trí của mảng mụcđích để đưa mã tạo sau lên trên cùng
+                let accountRequest = accounts.find(acc => acc.user === error.errorUser);
+                let fullNameRequest = accountRequest.fullname;
+                // let arrayErrorSearch =  error.filter(error => arrayCodeRequest.toUpperCase().includes())
+
+                let resultStatus = getStatusText(error.status)
+
+                let buttons = '';
+                let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+                let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
+
+                if (currentAccount) {
+                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button class="btnModify btn-Handle" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel btn-Handle" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                    }
+                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle btn-Handle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave btn-Handle" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete btn-Handle" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check"></p>
+                        </div>`
+                    }
+                }
+
+                return `
+                    <tr class="request-error-${error.id}">
+                        <td class="colum-processing" >${error.requestCode}</td>
+                        <td class="colum-processing" >${error.department}</td>
+                        <td class="colum-processing" >${error.category}</td>
+                        <td class="colum-processing" >${error.deviceOptions}</td>
+                        <td class="colum-processing" >${error.location}</td>
+                        <td class="colum-processing" >${error.errorDevice}</td>
+                        <td class="colum-processing" >${error.errorNote}</td>
+                        <td class="colum-processing" >${error.img}</td>
+                        <td class="colum-processing" >${error.errorTime}</td>
+                        <td class="colum-processing" >${error.errorHandleTime}</td>
+                        <td class="colum-processing" >${error.completeTime}</td>
+                        <td class="colum-processing" >${fullNameRequest}</td>
+                        <td class="colum-processing" >${error.handleUser}</td>
+                        <td class="colum-processing" >${resultStatus}</td>
+                        <td class="colum-processing">${buttons}</td>
+                    </tr >
+                        `
+
+            });
+            processingBody.innerHTML = htmls.join('');
+        });
+}
+
+
+// click vào notifications thì render request sau trừ bớt số lượng thông báo
 async function notificationItemQuantity(id) {
     let response = await fetch(handleErrors + "/" + id);
     let data = await response.json();
@@ -1114,7 +1193,6 @@ async function notificationItemQuantity(id) {
     let dataUpdate = {
         status: statusUpdate
     }
-    console.log(dataUpdate);
     let options = {
         method: "PATCH",
         headers: {
@@ -1126,9 +1204,138 @@ async function notificationItemQuantity(id) {
         .then(course => course.json())
         .then(() => {
             notificationChildItem.style.backgroundColor = '#fff'
-            getError(() => renderNotifications());
+            getError(errors => renderhandleErrorNoti(errors, id));
         })
 }
+
+/////////////////////////////////////////////start search////////////////////////////////////////////////////////////////
+// dữ liệu tổng
+async function dataSearch() {
+    let response = await fetch(handleErrors);
+    let data = await response.json();
+    let dataAll = data.map(element => `${(element.id)} ${(element.department)} ${(element.category)} ${(element.deviceOptions)} ${(element.location)} ${(element.errorDevice)} ${(element.errorUser)} ${(element.handleUser)} ${(element.requestCode)}`);
+    return dataAll
+}
+
+// dữ liệu nhập vào
+async function dataInput() {
+    let input = searchInput.value.trim();
+    let data = await arraySearch(input)
+    // console.log(data);
+    let codeRequestId = await data.map(element => {
+        let firstSpace = element.indexOf(' ');
+        let id = element.substring(0, firstSpace);
+        return id;
+    })
+    return codeRequestId
+}
+
+
+// dữ liệu mã đơn hàng
+async function arraySearch(input) {
+    // let dataInput = await dataInput();
+    let dataAll = await dataSearch();
+    let dataFilters = dataAll.filter(dataFilter => dataFilter.toUpperCase().includes(input.toUpperCase()));
+    return dataFilters;
+}
+
+//button search
+searchBtn.onclick = async function () {
+    let arrayCodeRequests = await dataInput();
+    searchInput.value = '';
+    getError(errors => renderhandleErrorSearch(errors, arrayCodeRequests));
+}
+
+async function renderhandleErrorSearch(errors, arrayCodeRequests) { // errors chính là data của hàm getError
+
+    let arrayErrorSearch = await errors.filter(error => {
+        return arrayCodeRequests.some(code => error.id === code)
+    });
+
+    console.log(arrayErrorSearch);
+
+    fetch(account)
+        .then(response => response.json())
+        .then(accounts => {
+            let currentUser = showUserName.innerHTML; // user đang đăng nhập
+            let currentAccount = accounts.find(acc => acc.user === currentUser); // tài khoản đang đăng nhập
+            let processingBody = document.querySelector('#container .content-processing .processing-body');
+            function getStatusText(status) {
+                switch (status) {
+                    case 1:
+                    case 11:
+                        return "Chờ";
+                    case 2:
+                    case 22:
+                        return "Đang xử lý";
+                    case 3:
+                    case 33:
+                        return "Hoàn thành";
+                    default:
+                        return "Unknown status";
+                }
+            }
+
+
+            let htmls = "";
+            htmls = arrayErrorSearch.reverse().map((error, index) => { //sử dụng reverse() đẻ đảo lại vị trí của mảng mụcđích để đưa mã tạo sau lên trên cùng
+                let accountRequest = accounts.find(acc => acc.user === error.errorUser);
+                let fullNameRequest = accountRequest.fullname;
+                // let arrayErrorSearch =  error.filter(error => arrayCodeRequest.toUpperCase().includes())
+
+                let resultStatus = getStatusText(error.status)
+
+                let buttons = '';
+                let statusModify = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusCancel = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusHandle = (error.status === 1 || error.status === 11) ? 'inline-block' : (error.status === 2 || error.status === 22) ? 'none' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusLeave = (error.status === 1 || error.status === 11) ? 'none' : (error.status === 2 || error.status === 22) ? 'inline-block' : (error.status === 3 || error.status === 33) ? 'none' : 'none';
+                let statusComplete = (error.status === 2 || error.status === 22) ? 'inline-block' : 'none';
+                let statusIconComplete = (error.status === 3 || error.status === 33) ? 'inline-block' : 'none';
+
+                if (currentAccount) {
+                    if (currentAccount.permission === 'administrator' || error.errorUser === currentUser) {
+                        buttons += `<button class="btnModify btn-Handle" style="min-width:50px; display: ${statusModify};" onclick="btnModifyError('${error.id}')">Sửa</button> `;
+                        buttons += `<button class="btnCancel btn-Handle" style="min-width:50px; display: ${statusCancel};" onclick="btnDeleteError('${error.id}')">Xóa</button> `;
+                    }
+                    if (currentAccount.permission === 'administrator' || currentAccount.department === error.departmentId) {
+                        buttons += `<div style="display: inline-block">
+                        <button class="btnHandle btn-Handle" style="min-width:50px; display: ${statusHandle};" onclick="confirmHandleError('${error.id}')">Xử lý</button> 
+                        <button class="btnLeave btn-Handle" style="min-width:50px; display: ${statusLeave};" onclick="leaveError('${error.id}')">Để lại</button></div> `;
+                        buttons += `<div>
+                        <button class="btnComplete btn-Handle" style="display: ${statusComplete};" onclick="handleComplete('${error.id}')">Hoàn Thành</button> <p style="display: ${statusIconComplete};" class="iconComplete ti-check"></p>
+                        </div>`
+                    }
+                }
+
+                return `
+                                <tr class="request-error-${error.id}">
+                                    <td class="colum-processing" >${error.requestCode}</td>
+                                    <td class="colum-processing" >${error.department}</td>
+                                    <td class="colum-processing" >${error.category}</td>
+                                    <td class="colum-processing" >${error.deviceOptions}</td>
+                                    <td class="colum-processing" >${error.location}</td>
+                                    <td class="colum-processing" >${error.errorDevice}</td>
+                                    <td class="colum-processing" >${error.errorNote}</td>
+                                    <td class="colum-processing" >${error.img}</td>
+                                    <td class="colum-processing" >${error.errorTime}</td>
+                                    <td class="colum-processing" >${error.errorHandleTime}</td>
+                                    <td class="colum-processing" >${error.completeTime}</td>
+                                    <td class="colum-processing" >${fullNameRequest}</td>
+                                    <td class="colum-processing" >${error.handleUser}</td>
+                                    <td class="colum-processing" >${resultStatus}</td>
+                                    <td class="colum-processing">${buttons}</td>
+                                </tr >
+                                    `
+
+            });
+            processingBody.innerHTML = htmls.join('');
+        });
+}
+
+////////////////////////////////////////////end search///////////////////////////////////////////////////////////////
+
+
 
 
 
