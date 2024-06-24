@@ -109,7 +109,6 @@ function handleLogin(accounts) {
                 notification.style.display = 'block'
                 errorInput(); // đê hàm khởi động errorInput(); ở đây để khi đăng nhập xong ta mới chạy hàm errorInput();
                 getError(renderhandleErrorUser); // sau khi đăng nhập xong thì render lại
-                // renderNotifications(accountLogin); 
                 getError(renderNotifications);
             }
         });
@@ -134,7 +133,7 @@ logOut.onclick = function () {
 
 // Reload lại trang sẽ kiểm tra user trong localStore nếu tồn tại thì sẽ tiếp tục phiên làm việc
 // nếu không thì sẽ cần đăng nhập để có thể thực hiện thao tác tạo báo lỗi 
-window.addEventListener('load', function () {
+window.addEventListener('load', function () { // load ở đây tức là sẽ chờ load xong toàn bộ dom thì mới bắt đầu xử lý css, js
     const user = localStorage.getItem('user'); // gọi user lưu trong localStore
     if (user) { // nếu tồn tại user thì thực hiện các nội dung bên dưới
         fetch(account) // gọi lại API để lấy lại các account tương ứng với user trong localStore
@@ -150,7 +149,7 @@ window.addEventListener('load', function () {
                 showUserName.innerHTML = accountLogin.user;
                 fullName.innerHTML = accountLogin.fullname;
                 logOut.innerHTML = 'Thoát';
-                getError(renderhandleError);
+                // getError(renderhandleError);
                 getError(renderNotifications);
             })
     } else {
@@ -199,19 +198,6 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser);
                 let fullNameRequest = accountRequest.fullname;
 
-                /** hiển thị tên người xử lý lỗi -- chưa xong
-                // let accountHandle = '';
-                // let accountHandle = error.status === 1 ? '' : currentAccount.fullname;
-
-                // if (currentAccount) {
-                //     accountHandle = currentAccount.fullname;
-                // }
-                // if (!currentAccount) {
-                //     accountHandle = '';
-                // }
-                */
-                // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"];
-
                 let resultStatus = getStatusText(error.status)
 
                 let buttons = '';
@@ -251,7 +237,7 @@ function renderhandleError(errors) { // errors chính là data của hàm getErr
                                     <td class="colum-processing" >${error.errorHandleTime}</td>
                                     <td class="colum-processing" >${error.completeTime}</td>
                                     <td class="colum-processing" >${fullNameRequest}</td>
-                                    <td class="colum-processing" >${error.handleUser}</td>
+                                    <td class="colum-processing" >${error.fullNameHandleUser}</td>
                                     <td class="colum-processing" >${resultStatus}</td>
                                     <td class="colum-processing">${buttons}</td>
                                 </tr >
@@ -331,7 +317,7 @@ async function checkMonthYear() {
 function handleCreateError() {
     btnConfirm.onclick = async function (event) {
         event.preventDefault(); // Ngăn chặn hành động mặc định của nút
-        let formattedMonth = String(date.getMonth() + 1).padStart(2, '0'); // sử dụng padStart(2, '0') để tạo giá trị có độ dài là 2, nếu ko đủ 2 thì thêm 0 đăng trước
+        let formattedMonth = String(date.getMonth() + 1).padStart(2, '0'); // sử dụng padStart(2, '0') để tạo giá trị có độ dài là 2, nếu ko đủ 2 thì thêm 0 đăng trước, áp dụng trên string
         let formatedYear = String(date.getFullYear()).slice(-2); // lấy 2 số cuối của năm
         let day = String(date.getDate()).padStart(2, '0');
         let countData = await getCount();
@@ -358,15 +344,11 @@ function handleCreateError() {
         // nếu không có dữ liệu thì không add dữ liệu vào
         // nếu có dữ liệu thì add dữ liệu vào  
 
-        if (// && errorInputColums[0] && errorInputColums[1] 
-            // && errorInputs[0] && errorInputs[1] 
-            // && errorInputs[2] && errorInputs[3] &&
-            errorInputColums[0].innerHTML.trim() !== ''
+        if (errorInputColums[0].innerHTML.trim() !== ''
             && errorInputColums[1].innerHTML.trim() !== ''
             && errorInputs[0].value.trim() !== ''
             && errorInputs[1].value.trim() !== ''
             && errorInputs[2].value.trim() !== '') {
-            // if (requestcode) 
             let dataUpdate = {
                 count: count + 1,
                 date: `${day}-${formattedMonth}-${formatedYear}`
@@ -385,7 +367,9 @@ function handleCreateError() {
                 errorHandleTime: '',
                 completeTime: '',
                 errorUser: showUserName.innerHTML,
+                fullNameErrorUser: fullName.innerHTML,
                 handleUser: '',
+                fullNameHandleUser: '',
                 departmentId: departmentId,
                 requestCode: requestcode,
                 status: 1,
@@ -395,7 +379,7 @@ function handleCreateError() {
             CreateError(errorDb, () => {
                 removeCreateError()
             }, () => {
-                getError(renderhandleErrorUser)
+                // getError(renderhandleErrorUser)
                 getError(renderNotifications);
 
             });
@@ -509,7 +493,9 @@ function handleModify(handleError) {
                 errorDevice: errorDevice,
                 errorNote: errorNote,
                 img: img.value,
-                errorTime: `${errorTimeClick} (Ud)`
+                errorTime: `${errorTimeClick} (Ud)`,
+                notification: errorTimeClick,
+                status: 1
             }
 
             if (window.confirm(confirmMessage)) {
@@ -525,7 +511,7 @@ function handleModify(handleError) {
                     .then(function () {
                         removeCreateError()
                         getError(renderhandleErrorUser);
-                        getError(renderNotifications);
+                        getError(notificationItemQuantity);
 
                     })
                     .then(function () {
@@ -588,8 +574,18 @@ function confirmHandleError(id) {
 
 // hàm xử lý nút xử lý ******************
 
-function handleConfirmError(error) {
+async function handleConfirmError(error) {
+    let userHandle = showUserName.innerHTML;
+    console.log(userHandle);
+    let handleLogin;
     let confirmMessage = 'Xác nhận xử lý yêu cầu này'
+    let response = await fetch(account) // gọi lại API để lấy lại các account tương ứng với user trong localStore
+    let accountUser = await response.json()
+    console.log(accountUser);
+
+    let accountHandle = accountUser.find(acc => acc.user === userHandle)
+
+    console.log(accountHandle);
 
     let errorTimeClick = `${date.getHours()}:${date.getMinutes()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     let btnModify = document.querySelector('#container .processing-body .btnModify'); // nút sửa
@@ -598,13 +594,14 @@ function handleConfirmError(error) {
     let btnComplete = document.querySelector('#container .processing-body .btnComplete'); // nút hoàn thành
     let btnLeave = document.querySelector('#container .processing-body .btnLeave'); // nút để lại
 
-    let errorHandleTime = errorTimeClick; // thời gian bắt đầu xác nhận xử lý
-    let userHandle = showUserName.innerHTML;
+    // let errorHandleTime = errorTimeClick; // thời gian bắt đầu xác nhận xử lý
+
     let dataUpdate = {
-        errorHandleTime: errorHandleTime,
+        errorHandleTime: errorTimeClick,
         handleUser: userHandle,
+        fullNameHandleUser: accountHandle.fullname,
         status: 2,
-        notification: errorHandleTime
+        notification: errorTimeClick
     }
 
     if (window.confirm(confirmMessage)) {
@@ -638,21 +635,22 @@ function leaveError(id) {
 }
 
 //Hàm xử lý nút để lại
-function handleLeaveError(error) {
+function handleLeaveError(error, event) {
     let confirmMessage = 'Bạn có thực sự muốn để lại yêu cầu này'
-    let userNameHandle = error.handleUser;
+    let userNameHandle = error.fullNameHandleUser;
     let departmentId = error.departmentId;
     let userRequest = {};
     fetch(account)
         .then(reponse => reponse.json())
         .then(acc => {
             acc.forEach(element => {
-                if (element.user === error.handleUser) {
+                if (element.user === error.fullNameHandleUser) {
                     userRequest = element
                 }
             })
             let dataUpdate = {
                 errorHandleTime: "",
+                fullNameHandleUser: "",
                 handleUser: "",
                 status: 1
             }
@@ -668,8 +666,7 @@ function handleLeaveError(error) {
                     fetch(handleErrors + '/' + error.id, options)
                         .then(course => course.json())
                         .then(function () {
-                            // removeCreateError()
-                            getError(renderhandleError);
+                            // getError(renderhandleError);
                             getError(renderNotifications);
                         })
                 }
@@ -695,14 +692,14 @@ function handleComplete(id) {
 //Hàm xử lý nút hoàn thành
 function handleBtnComplete(error) {
     let confirmMessage = 'Xác nhận hoàn thành'
-    let userNameHandle = error.handleUser;
+    let userNameHandle = error.fullNameHandleUser;
     let departmentId = error.departmentId;
     let userRequest = {};
     fetch(account)
         .then(reponse => reponse.json())
         .then(acc => {
             acc.forEach(element => {
-                if (element.user === error.handleUser) {
+                if (element.user === error.fullNameHandleUser) {
                     userRequest = element
                 }
             })
@@ -815,7 +812,7 @@ function renderDepartments(errors, departmentIdrender) {
                                 <td class="colum-processing" >${error.errorHandleTime}</td>
                                 <td class="colum-processing" >${error.completeTime}</td>
                                 <td class="colum-processing" >${fullNameRequest}</td>
-                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${error.fullNameHandleUser}</td>
                                 <td class="colum-processing" >${resultStatus}</td>
                                 <td class="colum-processing">${buttons}</td>
                             </tr >
@@ -839,17 +836,6 @@ let accountAll = fetch(account)
     .then(response => response.json())
     .then(accounts => accounts)
 
-// console.log(accountAll)
-
-// render theo user đăng nhập
-// fullName.onclick = function (e) {
-//     getError(renderhandleErrorUser)
-//     console.log(accountLogin)
-// }
-
-
-
-
 function renderhandleErrorUser(errors) {
     fetch(account)
         .then(response => response.json())
@@ -866,12 +852,6 @@ function renderhandleErrorUser(errors) {
             htmls = departmentErrorUser.map((error, index) => {
                 let fullNameRequest = accountLogin.fullname;
 
-                // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-                // let resultStatus = statusAll.find((istatusItem, index) => {
-                //     if (error.status == index + 1 || ((error.status) + error.status * 10 + error.status) == (index + 1) + (error.status * 10 + error.status)) {
-                //         return istatusItem;
-                //     }
-                // })
                 let resultStatus = getStatusText(error.status)
 
 
@@ -913,7 +893,7 @@ function renderhandleErrorUser(errors) {
                                 <td class="colum-processing" >${error.errorHandleTime}</td>
                                 <td class="colum-processing" >${error.completeTime}</td>
                                 <td class="colum-processing" >${fullNameRequest}</td>
-                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${error.fullNameHandleUser}</td>
                                 <td class="colum-processing" >${resultStatus}</td>
                                 <td class="colum-processing">${buttons}</td>
                             </tr >
@@ -947,12 +927,6 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
         })
 
         htmls = departmentErrorUser.map((error, index) => {
-            // let statusAll = ["Chờ", "Đang xử lý", "Hoàn thành"]
-            // let resultStatus = statusAll.find((istatusItem, index) => {
-            //     if (error.status == index + 1 || ((error.status) + error.status * 10 + error.status) == (index + 1) + (error.status * 10 + error.status)) {
-            //         return istatusItem;
-            //     }
-            // })
 
             let resultStatus = getStatusText(error.status)
 
@@ -995,7 +969,7 @@ function renderhandleErrorOption(errors, departmentIdAndUser = 'undefined') {
                                 <td class="colum-processing" >${error.errorHandleTime}</td>
                                 <td class="colum-processing" >${error.completeTime}</td>
                                 <td class="colum-processing" >${fullNameRequest}</td>
-                                <td class="colum-processing" >${error.handleUser}</td>
+                                <td class="colum-processing" >${error.fullNameHandleUser}</td>
                                 <td class="colum-processing" >${resultStatus}</td>
                                 <td class="colum-processing">${buttons}</td>
                             </tr >
@@ -1038,30 +1012,30 @@ async function renderNotifications() { // acccount được lấy sau khi login 
     // request của user đăng nhập đã được xử lý
     let htmlsUser = notificationsUser.map((error, index) => {
         if (error.status == 2) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.fullNameHandleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         } else if (error.status == 3) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.fullNameHandleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`
         }
     })
 
     let htmlsUserHidden = notificationsUser.map((error, index) => {
         if (error.status == 22) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.fullNameHandleUser}</h5> đang xử lý yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         } else if (error.status == 33) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.handleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')" ><h5>${error.fullNameHandleUser}</h5> đã xử lý xong yêu cầu có mã số: <h5>${error.requestCode}</h5> của bạn<div><span style = "color: red;">${error.notification}</span></div></div>`;
         }
     })
 
 
     let htmlsDepartment = notificationsDepartment.map((error, index) => {
         if (error.status == 1) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.notification}</span></div></div>`
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fffae8" onclick="notificationItemQuantity('${error.id}')"><h5>${error.fullNameErrorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.notification}</span></div></div>`
         }
     })
 
     let htmlsDepartmentHidden = notificationsDepartment.map((error, index) => {
         if (error.status == 11) {
-            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')"><h5>${error.errorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
+            return `<div class="noti-child id-${error.id}" style="background-Color: #fff" onclick="notificationItemQuantity('${error.id}')"><h5>${error.fullNameErrorUser}</h5> đã gửi yêu cầu xử lý mã số: <h5>${error.requestCode}</h5> đến bộ phận bạn.<div><span style = "color: red;">${error.errorTime}</span></div></div>`
         }
     })
 
@@ -1082,7 +1056,6 @@ async function renderNotifications() { // acccount được lấy sau khi login 
 notificationsIcon.onclick = function () {
     if (notifications.style.display === 'block') {
         notifications.style.display = 'none';
-        // getError(() => renderNotifications());
     } else {
         notifications.style.display = 'block'
         getError(() => renderNotifications());
@@ -1116,7 +1089,6 @@ async function renderhandleErrorNoti(errors, idError) { // errors chính là dat
             }
 
             let currenError = [errors.find(err => err.id === idError)]
-            console.log(currenError);
             let htmls = "";
             htmls = currenError.map((error, index) => { //sử dụng reverse() đẻ đảo lại vị trí của mảng mụcđích để đưa mã tạo sau lên trên cùng
                 let accountRequest = accounts.find(acc => acc.user === error.errorUser);
@@ -1162,7 +1134,7 @@ async function renderhandleErrorNoti(errors, idError) { // errors chính là dat
                         <td class="colum-processing" >${error.errorHandleTime}</td>
                         <td class="colum-processing" >${error.completeTime}</td>
                         <td class="colum-processing" >${fullNameRequest}</td>
-                        <td class="colum-processing" >${error.handleUser}</td>
+                        <td class="colum-processing" >${error.fullNameHandleUser}</td>
                         <td class="colum-processing" >${resultStatus}</td>
                         <td class="colum-processing">${buttons}</td>
                     </tr >
@@ -1213,7 +1185,10 @@ async function notificationItemQuantity(id) {
 async function dataSearch() {
     let response = await fetch(handleErrors);
     let data = await response.json();
-    let dataAll = data.map(element => `${(element.id)} ${(element.department)} ${(element.category)} ${(element.deviceOptions)} ${(element.location)} ${(element.errorDevice)} ${(element.errorUser)} ${(element.handleUser)} ${(element.requestCode)}`);
+    let dataAll = data.map(element => `${(element.id)} ${(element.department)} ${(element.category)} 
+    ${(element.deviceOptions)} ${(element.location)} ${(element.errorDevice)} ${(element.errorUser)} 
+    ${(element.fullNameErrorUser)} ${(element.handleUser)} ${(element.fullNameHandleUser)} 
+    ${(element.requestCode)}`);
     return dataAll
 }
 
@@ -1252,7 +1227,6 @@ async function renderhandleErrorSearch(errors, arrayCodeRequests) { // errors ch
         return arrayCodeRequests.some(code => error.id === code)
     });
 
-    console.log(arrayErrorSearch);
 
     fetch(account)
         .then(response => response.json())
@@ -1322,7 +1296,7 @@ async function renderhandleErrorSearch(errors, arrayCodeRequests) { // errors ch
                                     <td class="colum-processing" >${error.errorHandleTime}</td>
                                     <td class="colum-processing" >${error.completeTime}</td>
                                     <td class="colum-processing" >${fullNameRequest}</td>
-                                    <td class="colum-processing" >${error.handleUser}</td>
+                                    <td class="colum-processing" >${error.fullNameHandleUser}</td>
                                     <td class="colum-processing" >${resultStatus}</td>
                                     <td class="colum-processing">${buttons}</td>
                                 </tr >

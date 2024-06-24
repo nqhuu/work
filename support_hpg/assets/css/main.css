@@ -155,6 +155,9 @@
 
 #header .notification-item {
     padding: 3px 10px;
+    max-height: 750px;
+    overflow-y: auto;
+    /* cuộn scroll  overflow-y: auto;*/
 }
 
 

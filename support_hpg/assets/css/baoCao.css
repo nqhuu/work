@@ -1,0 +1,73 @@
+:root {
+    --percent: 50%;
+}
+
+#report-table {
+    display: flex;
+}
+
+#report-table .bar-chart {
+    flex: 1;
+}
+
+#report-table .report-table-current {
+    flex: 1;
+}
+
+#report-table .report-table-current thead td:first-child {
+    width: 25%;
+}
+
+
+
+.bar-chart .sumAll {
+    background-color: rgb(83, 83, 255);
+    width: var(--percent);
+    display: inline-block;
+    text-align: center;
+    margin: 2px 0;
+
+}
+
+.bar-chart .complete {
+    background-color: rgb(255, 114, 49);
+    width: var(--percent);
+    display: inline-block;
+    text-align: center;
+    margin: 2px 0;
+
+}
+
+.bar-chart .backlog {
+    background-color: rgb(110, 110, 110);
+    width: var(--percent);
+    display: inline-block;
+    text-align: center;
+    margin: 2px 0;
+
+}
+
+.bar-chart {
+    max-width: 50%;
+}
+
+li:first-child::marker {
+    color: rgb(83, 83, 255);
+    font-size: 25px;
+    content: '■';
+    margin: 5px;
+}
+
+li:nth-child(2)::marker {
+    color: rgb(255, 114, 49);
+    font-size: 25px;
+    content: '■';
+    margin: 5px;
+}
+
+li:nth-child(3)::marker {
+    color: rgb(110, 110, 110);
+    font-size: 25px;
+    content: '■';
+    margin: 5px;
+}
