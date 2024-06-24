@@ -2,8 +2,12 @@
     --percent: 50%;
 }
 
-#report-table {
+
+/* #report-table {
     display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
 }
 
 #report-table .bar-chart {
@@ -14,11 +18,84 @@
     flex: 1;
 }
 
-#report-table .report-table-current thead td:first-child {
+#report-table .report-table-current {
+    display: flex;
+} */
+
+/*  */
+#report-table {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.bar-chart,
+.report-table-current {
+    width: 48%;
+}
+
+.bar-chart-month {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.bar-chart-month div {
+    margin-bottom: 5px;
+}
+
+.sumAll,
+.complete,
+.backlog {
+    width: 100%;
+    position: relative;
+    background-color: #f0f0f0;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.sumAll {
+    background-color: rgb(49, 49, 255);
+}
+
+.complete {
+    background-color: rgb(255, 114, 49);
+}
+
+.backlog {
+    background-color: rgb(110, 110, 110);
+}
+
+.table-header {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.title-row td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+.title-row td:nth-child(1),
+.title-row td:nth-child(2),
+.title-row td:nth-child(3),
+.title-row td:nth-child(4) {
     width: 25%;
 }
 
+/*  */
+/* #report-table .title-row td:first-child {
+    width: 25%;
+} */
 
+
+#report-table .month {
+    font-size: 16px;
+}
 
 .bar-chart .sumAll {
     background-color: rgb(83, 83, 255);
