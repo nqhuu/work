@@ -1,28 +1,49 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 :root {
     --percent: 50%;
 }
 
-
-/* #report-table {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px;
+#header {
+    width: 100%;
+    padding: 10px;
 }
 
-#report-table .bar-chart {
-    flex: 1;
+.img-logo {
+    width: 100px;
+    height: auto;
+    display: inline-block;
+    position: relative;
+
 }
 
-#report-table .report-table-current {
-    flex: 1;
+.info {
+    position: absolute;
+    display: inline-block;
+    padding-left: 20px;
 }
 
-#report-table .report-table-current {
-    display: flex;
-} */
+.company-name {
+    height: 60px;
+    font-size: 50px;
 
-/*  */
+}
+
+.note-color {
+    padding-left: 35px;
+}
+
+.deparments-name {
+    height: 33px;
+    font-size: 30px;
+    position: fixed;
+    top: 72px;
+}
+
 #report-table {
     display: flex;
     justify-content: space-between;
@@ -33,16 +54,28 @@
 .bar-chart,
 .report-table-current {
     width: 48%;
+    height: 80%;
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+.bar-chart {
+    max-width: 50%;
 }
 
 .bar-chart-month {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    padding-bottom: 20px;
 }
 
 .bar-chart-month div {
     margin-bottom: 5px;
+}
+
+.bar-chart-month .month {
+    padding: 10px 0;
 }
 
 .sumAll,
@@ -51,8 +84,8 @@
     width: 100%;
     position: relative;
     background-color: #f0f0f0;
-    height: 30px;
-    line-height: 30px;
+    height: 20px;
+    line-height: 20px;
     text-align: center;
     margin-bottom: 5px;
 }
@@ -87,15 +120,6 @@
     width: 25%;
 }
 
-/*  */
-/* #report-table .title-row td:first-child {
-    width: 25%;
-} */
-
-
-#report-table .month {
-    font-size: 16px;
-}
 
 .bar-chart .sumAll {
     background-color: rgb(83, 83, 255);
@@ -124,9 +148,7 @@
 
 }
 
-.bar-chart {
-    max-width: 50%;
-}
+
 
 li:first-child::marker {
     color: rgb(83, 83, 255);
@@ -147,4 +169,20 @@ li:nth-child(3)::marker {
     font-size: 25px;
     content: '■';
     margin: 5px;
+}
+
+
+#footer {
+    position: fixed;
+    bottom: 30px;
+    width: 100%;
+    text-align: center;
+}
+
+
+#footer .btn-report-deparments button {
+    font-size: 20px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    min-width: 200px;
 }

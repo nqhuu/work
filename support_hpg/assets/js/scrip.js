@@ -30,6 +30,7 @@ let notiQuanlity = document.querySelector('#header .notification .quality-noti')
 let notificationChild = document.querySelectorAll('#header .notification-item .noti-child');
 let searchInput = document.querySelector('#container .search');
 let searchBtn = document.querySelector('#container .search-btn');
+let reports = document.querySelector('#container .reports');
 let date = new Date();
 // Hàm khởi động phần mềm
 
@@ -1310,6 +1311,8 @@ async function renderhandleErrorSearch(errors, arrayCodeRequests) { // errors ch
 ////////////////////////////////////////////end search///////////////////////////////////////////////////////////////
 
 
-
+reports.onclick = function (e) {
+    window.location.href = "http://127.0.0.1:5500/support_hpg/baoCao.html";
+}
 
 
