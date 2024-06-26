@@ -18,6 +18,7 @@ let date = new Date();
 
 function startReport() {
     renderReport(reportYear())
+    domBaoCao.deparmentsName.innerHTML = `Báo cáo năm ${date.getFullYear()}`
 }
 
 startReport();
@@ -98,7 +99,7 @@ async function errorYearNow() {
 
 // lọc theo tháng 
 async function reportYear() {
-    domBaoCao.deparmentsName.innerHTML = `Báo cáo năm ${date.getFullYear()}`
+    // domBaoCao.deparmentsName.innerHTML = `Báo cáo năm ${date.getFullYear()}`
     let error = {};
     let errorYear = await errorYearNow();
     errorYear.forEach(element => {
@@ -129,13 +130,16 @@ async function reportDepartment(department) {
 
 //click để render ra màn hình
 domBaoCao.btnDepartments.forEach((btnDepartment, index) => {
+    let departmentName = btnDepartment.innerHTML;
     if (index < domBaoCao.btnDepartments.length - 1) {
         btnDepartment.addEventListener('click', () => {
             let department = btnDepartment.classList.value;
+            domBaoCao.deparmentsName.innerHTML = `Báo cáo ${departmentName} năm ${date.getFullYear()}`
             renderReport(reportDepartment(department));
         })
     } else {
         btnDepartment.addEventListener('click', () => {
+            domBaoCao.deparmentsName.innerHTML = `Báo cáo năm ${date.getFullYear()}`
             renderReport(reportYear());
         })
     }
