@@ -30,9 +30,9 @@ async function getError() {
     return errors;
 }
 
-// gọi lỗi theo năm
-async function getErorYear() {
-    let errorAll = getError();
+// lấy số năm - lấy 2 số cuối
+async function getYear() {
+    // let errorAll = getError();
     let formatedYear = String(date.getFullYear()).slice(-2);
     return formatedYear;
 }
@@ -85,7 +85,7 @@ async function renderReport(callback) {
 // các lỗi trong năm
 async function errorYearNow() {
     let errorAll = await getError()
-    let yearNow = await getErorYear()
+    let yearNow = await getYear()
     let errorYear = errorAll.filter(error => {
         let errors = [];
         let numberYear = String(error.requestCode.slice(4, 6))

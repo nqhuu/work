@@ -14,7 +14,7 @@
 }
 
 .img-logo {
-    width: 100px;
+    width: 65px;
     height: auto;
     display: inline-block;
     position: relative;
@@ -28,20 +28,21 @@
 }
 
 .company-name {
-    height: 60px;
-    font-size: 50px;
+    height: 40px;
+    font-size: 35px;
 
 }
 
 .note-color {
     padding-left: 35px;
+    padding-top: 30px;
 }
 
 .deparments-name {
-    height: 33px;
-    font-size: 30px;
+    height: 20px;
+    font-size: 20px;
     position: fixed;
-    top: 72px;
+    top: 52px;
 }
 
 #report-table {
